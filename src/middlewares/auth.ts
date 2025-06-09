@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import { Types } from 'mongoose';
 
 interface JwtPayload {
   id: string;
@@ -37,7 +38,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       }
 
       req.user = {
-        id: user._id.toString(),
+        id: (user._id as Types.ObjectId).toString(),
         role: user.role as 'admin' | 'user'
       };
       

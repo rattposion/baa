@@ -8,9 +8,9 @@ interface ErrorResponse extends Error {
 
 export const errorHandler = (
   err: ErrorResponse,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   let error = { ...err };
   error.message = err.message;

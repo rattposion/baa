@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IEquipmentDocument } from '../types';
 
 const equipmentSchema = new mongoose.Schema({
   name: {
@@ -43,6 +44,6 @@ const equipmentSchema = new mongoose.Schema({
   }
 });
 
-const Equipment = mongoose.model('Equipment', equipmentSchema);
+const Equipment = mongoose.model<IEquipmentDocument>('Equipment', equipmentSchema);
 
 export default Equipment; 

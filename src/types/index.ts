@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export interface IEmployee extends Document {
   name: string;
@@ -8,13 +8,17 @@ export interface IEmployee extends Document {
   active: boolean;
 }
 
-export interface IEquipment extends Document {
+export interface IEquipment {
   name: string;
   model: string;
   description: string;
   minStock: number;
   currentStock: number;
   active: boolean;
+}
+
+export interface IEquipmentDocument extends Omit<Document, '_id' | 'model'>, IEquipment {
+  _id: Types.ObjectId;
 }
 
 export interface IProduction extends Document {
