@@ -16,7 +16,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     });
   }
 
-  res.status(500).json({
+  return res.status(500).json({
     message: 'Erro interno do servidor'
   });
 }; 

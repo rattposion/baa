@@ -6,10 +6,15 @@ interface JwtPayload {
   id: string;
 }
 
+interface UserPayload {
+  id: string;
+  role: 'admin' | 'user';
+}
+
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: UserPayload;
     }
   }
 }
@@ -24,15 +29,28 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-      req.user = await User.findById(decoded.id).select('-password');
+      const user = await User.findById(decoded.id).select('-password');
+      
+      if (!user) {
+        res.status(401).json({ message: 'Usuário não encontrado' });
+        return;
+      }
+
+      req.user = {
+        id: user._id.toString(),
+        role: user.role as 'admin' | 'user'
+      };
+      
       next();
     } catch (error) {
       res.status(401).json({ message: 'Não autorizado, token inválido' });
+      return;
     }
   }
 
   if (!token) {
     res.status(401).json({ message: 'Não autorizado, sem token' });
+    return;
   }
 };
 

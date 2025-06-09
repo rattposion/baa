@@ -5,19 +5,25 @@ WORKDIR /app
 # Instalar dependências necessárias para compilação
 RUN apk add --no-cache python3 make g++
 
-# Configurar npm
+# Copiar apenas os arquivos necessários primeiro
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Configurar npm e instalar dependências
 RUN npm config set legacy-peer-deps true \
     && npm config set strict-peer-deps false \
     && npm config set package-lock false \
-    && npm config set audit false
+    && npm config set audit false \
+    && npm install
 
-# Copiar todo o código fonte primeiro
-COPY . .
+# Copiar o código fonte
+COPY src ./src
 
-# Instalar dependências e compilar
-RUN npm install \
-    && npm run build \
-    && npm prune --production
+# Compilar o TypeScript
+RUN npm run build
+
+# Remover dependências de desenvolvimento
+RUN npm prune --production
 
 # Expor porta
 EXPOSE 5000

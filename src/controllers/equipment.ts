@@ -5,7 +5,7 @@ import Equipment from '../models/Equipment';
 // @desc    Obter todos os equipamentos
 // @route   GET /api/equipment
 // @access  Private
-export const getEquipment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const getEquipment = asyncHandler(async (_req: Request, res: Response) => {
   const equipment = await Equipment.find();
   res.json(equipment);
 });

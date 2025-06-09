@@ -1,17 +1,14 @@
 import { Request, Response } from 'express';
+import asyncHandler from 'express-async-handler';
 import Employee from '../models/Employee';
 
 // @desc    Obter todos os funcionários
 // @route   GET /api/employees
 // @access  Private
-export const getEmployees = async (req: Request, res: Response) => {
-  try {
-    const employees = await Employee.find().sort({ name: 1 });
-    res.json(employees);
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar funcionários' });
-  }
-};
+export const getEmployees = asyncHandler(async (_req: Request, res: Response) => {
+  const employees = await Employee.find();
+  res.json(employees);
+});
 
 // @desc    Obter um funcionário por ID
 // @route   GET /api/employees/:id
