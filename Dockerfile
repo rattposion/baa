@@ -11,21 +11,13 @@ RUN npm config set legacy-peer-deps true \
     && npm config set package-lock false \
     && npm config set audit false
 
-# Copiar arquivos de configuração primeiro
-COPY package*.json ./
-COPY tsconfig.json ./
-
-# Instalar dependências
-RUN npm install
-
-# Copiar código fonte
+# Copiar todo o código fonte primeiro
 COPY . .
 
-# Compilar TypeScript
-RUN npm run build
-
-# Remover devDependencies
-RUN npm prune --production
+# Instalar dependências e compilar
+RUN npm install \
+    && npm run build \
+    && npm prune --production
 
 # Expor porta
 EXPOSE 5000
