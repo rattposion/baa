@@ -1,46 +1,47 @@
-import { Document } from 'mongoose';
-
-export interface IEmployee extends Document {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  active: boolean;
-}
-
-export interface IEquipment extends Document {
+export interface Equipment {
+  id: string;
   name: string;
   model: string;
-  description: string;
-  minStock: number;
   currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  department: string;
   active: boolean;
 }
 
-export interface IProduction extends Document {
+export interface ProductionRecord {
+  id: string;
   employeeId: string;
   employeeName: string;
   equipmentId: string;
   equipmentModel: string;
   quantity: number;
   date: string;
-  timestamp: Date;
+  timestamp: string;
 }
 
-export interface IMovement extends Document {
+export interface StockMovement {
+  id: string;
   equipmentId: string;
   equipmentName: string;
-  quantity: number;
   type: 'entrada' | 'saida';
-  description: string;
+  quantity: number;
   date: string;
-  timestamp: Date;
+  timestamp: string;
+  description: string;
 }
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  password: string;
-  role: 'admin' | 'user';
-  active: boolean;
-} 
+export interface DailyReport {
+  date: string;
+  totalProduction: number;
+  employeeCount: number;
+  topEmployee: string;
+  topModel: string;
+  productions: ProductionRecord[];
+}
