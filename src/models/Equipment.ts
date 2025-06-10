@@ -2,10 +2,12 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IEquipment {
   modelName: string;
+  currentStock: number;
 }
 
 export interface IEquipmentDocument extends Document {
   modelName: string;
+  currentStock: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +18,11 @@ const equipmentSchema = new Schema({
     required: [true, 'Por favor, informe o modelo do equipamento'],
     trim: true,
     unique: true
+  },
+  currentStock: {
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {
   timestamps: true
