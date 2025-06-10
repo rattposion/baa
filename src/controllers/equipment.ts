@@ -6,7 +6,7 @@ import Equipment from '../models/Equipment';
 // @route   GET /api/equipment
 // @access  Private
 export const getEquipment = asyncHandler(async (_req: Request, res: Response) => {
-  const equipment = await Equipment.find().sort({ model: 1 });
+  const equipment = await Equipment.find().sort({ modelName: 1 });
   res.json(equipment);
 });
 
@@ -28,21 +28,21 @@ export const getEquipmentById = asyncHandler(async (req: Request, res: Response)
 // @route   POST /api/equipment
 // @access  Private/Admin
 export const createEquipment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { model } = req.body;
+  const { modelName } = req.body;
 
-  if (!model) {
+  if (!modelName) {
     res.status(400);
     throw new Error('Por favor, informe o modelo do equipamento');
   }
 
   // Verificar se já existe um equipamento com o mesmo modelo
-  const existingEquipment = await Equipment.findOne({ model });
+  const existingEquipment = await Equipment.findOne({ modelName });
   if (existingEquipment) {
     res.status(400);
     throw new Error('Já existe um equipamento com este modelo');
   }
 
-  const equipment = await Equipment.create({ model });
+  const equipment = await Equipment.create({ modelName });
   res.status(201).json(equipment);
 });
 
@@ -50,21 +50,21 @@ export const createEquipment = asyncHandler(async (req: Request, res: Response):
 // @route   PUT /api/equipment/:id
 // @access  Private/Admin
 export const updateEquipment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { model } = req.body;
+  const { modelName } = req.body;
 
   const equipment = await Equipment.findById(req.params.id);
 
   if (equipment) {
     // Verificar se já existe outro equipamento com o mesmo modelo
-    if (model && model !== equipment.model) {
-      const existingEquipment = await Equipment.findOne({ model });
+    if (modelName && modelName !== equipment.modelName) {
+      const existingEquipment = await Equipment.findOne({ modelName });
       if (existingEquipment) {
         res.status(400);
         throw new Error('Já existe um equipamento com este modelo');
       }
     }
 
-    equipment.model = model || equipment.model;
+    equipment.modelName = modelName || equipment.modelName;
 
     const updatedEquipment = await equipment.save();
     res.json(updatedEquipment);

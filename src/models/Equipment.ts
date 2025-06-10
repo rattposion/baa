@@ -1,17 +1,17 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IEquipment {
-  model: string;
+  modelName: string;
 }
 
 export interface IEquipmentDocument extends Document {
-  model: string;
+  modelName: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const equipmentSchema = new Schema({
-  model: {
+  modelName: {
     type: String,
     required: [true, 'Por favor, informe o modelo do equipamento'],
     trim: true,

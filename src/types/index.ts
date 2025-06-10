@@ -9,11 +9,11 @@ export interface IEmployee extends Document {
 }
 
 export interface IEquipment {
-  model: string;
+  modelName: string;
 }
 
 export interface IEquipmentDocument extends Document {
-  model: string;
+  modelName: string;
   createdAt: Date;
   updatedAt: Date;
   _id: Types.ObjectId;
