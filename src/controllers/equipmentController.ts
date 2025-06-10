@@ -10,6 +10,7 @@ export const getEquipments = asyncHandler(async (_req: Request, res: Response) =
   const result = equipments.map(e => ({
     id: String(e._id),
     modelName: e.modelName,
+    currentStock: typeof e.currentStock === 'number' ? e.currentStock : 0,
     createdAt: e.createdAt,
     updatedAt: e.updatedAt
     // ...adicione outros campos se necessário
