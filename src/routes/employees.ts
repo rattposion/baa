@@ -4,16 +4,12 @@ import {
   getEmployeeById,
   createEmployee,
   updateEmployee,
-  deleteEmployee,
-  loginEmployee
+  deleteEmployee
 } from '../controllers/employeeController';
 import { authenticate } from '../middleware/authMiddleware';
 import { isAdmin } from '../middleware/adminMiddleware';
 
 const router = express.Router();
-
-// Rota pública para login
-router.post('/login', loginEmployee);
 
 // Rotas protegidas que requerem autenticação
 router.use(authenticate);
