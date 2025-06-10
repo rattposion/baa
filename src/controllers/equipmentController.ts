@@ -8,7 +8,7 @@ import Equipment from '../models/Equipment';
 export const getEquipments = asyncHandler(async (_req: Request, res: Response) => {
   const equipments = await Equipment.find().sort({ modelName: 1 });
   const result = equipments.map(e => ({
-    id: e._id.toString(),
+    id: String(e._id),
     modelName: e.modelName,
     createdAt: e.createdAt,
     updatedAt: e.updatedAt
