@@ -1,10 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IEquipment extends Document {
+export interface IEquipment {
   model: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IEquipmentDocument extends Document, IEquipment {}
 
 const equipmentSchema = new Schema({
   model: {
@@ -17,6 +19,6 @@ const equipmentSchema = new Schema({
   timestamps: true
 });
 
-const Equipment = mongoose.model<IEquipment>('Equipment', equipmentSchema);
+const Equipment = mongoose.model<IEquipmentDocument>('Equipment', equipmentSchema);
 
 export default Equipment; 

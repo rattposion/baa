@@ -6,7 +6,7 @@ import Equipment from '../models/Equipment';
 // @route   GET /api/equipment
 // @access  Private
 export const getEquipment = asyncHandler(async (_req: Request, res: Response) => {
-  const equipment = await Equipment.find();
+  const equipment = await Equipment.find().sort({ model: 1 });
   res.json(equipment);
 });
 
@@ -28,16 +28,21 @@ export const getEquipmentById = asyncHandler(async (req: Request, res: Response)
 // @route   POST /api/equipment
 // @access  Private/Admin
 export const createEquipment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { name, model, description, minStock, currentStock } = req.body;
+  const { model } = req.body;
 
-  const equipment = await Equipment.create({
-    name,
-    model,
-    description,
-    minStock: minStock || 0,
-    currentStock: currentStock || 0
-  });
+  if (!model) {
+    res.status(400);
+    throw new Error('Por favor, informe o modelo do equipamento');
+  }
 
+  // Verificar se já existe um equipamento com o mesmo modelo
+  const existingEquipment = await Equipment.findOne({ model });
+  if (existingEquipment) {
+    res.status(400);
+    throw new Error('Já existe um equipamento com este modelo');
+  }
+
+  const equipment = await Equipment.create({ model });
   res.status(201).json(equipment);
 });
 
@@ -45,17 +50,21 @@ export const createEquipment = asyncHandler(async (req: Request, res: Response):
 // @route   PUT /api/equipment/:id
 // @access  Private/Admin
 export const updateEquipment = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { name, model, description, minStock, currentStock, active } = req.body;
+  const { model } = req.body;
 
   const equipment = await Equipment.findById(req.params.id);
 
   if (equipment) {
-    equipment.name = name || equipment.name;
+    // Verificar se já existe outro equipamento com o mesmo modelo
+    if (model && model !== equipment.model) {
+      const existingEquipment = await Equipment.findOne({ model });
+      if (existingEquipment) {
+        res.status(400);
+        throw new Error('Já existe um equipamento com este modelo');
+      }
+    }
+
     equipment.model = model || equipment.model;
-    equipment.description = description || equipment.description;
-    equipment.minStock = minStock !== undefined ? minStock : equipment.minStock;
-    equipment.currentStock = currentStock !== undefined ? currentStock : equipment.currentStock;
-    equipment.active = active !== undefined ? active : equipment.active;
 
     const updatedEquipment = await equipment.save();
     res.json(updatedEquipment);
@@ -78,4 +87,4 @@ export const deleteEquipment = asyncHandler(async (req: Request, res: Response):
     res.status(404);
     throw new Error('Equipamento não encontrado');
   }
-}); 
+});
