@@ -46,42 +46,50 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    res.status(400);
-    throw new Error('Por favor, informe email e senha');
+    if (!email || !password) {
+      res.status(400);
+      throw new Error('Por favor, informe email e senha');
+    }
+
+    // Busca o usuário incluindo o campo password
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+      res.status(401);
+      throw new Error('Email ou senha inválidos');
+    }
+
+    // Verifica se o usuário está ativo
+    if (!user.active) {
+      res.status(401);
+      throw new Error('Conta desativada');
+    }
+
+    // Verifica se a senha está correta
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      res.status(401);
+      throw new Error('Email ou senha inválidos');
+    }
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user.id),
+    });
+  } catch (error: any) {
+    // Se for um erro que já definiu o status, mantém o status
+    if (!res.statusCode || res.statusCode === 200) {
+      res.status(401);
+    }
+    throw error;
   }
-
-  // Busca o usuário incluindo o campo password
-  const user = await User.findOne({ email }).select('+password');
-
-  if (!user) {
-    res.status(401);
-    throw new Error('Email ou senha inválidos');
-  }
-
-  // Verifica se a senha está correta usando o método do modelo
-  const isMatch = await user.matchPassword(password);
-
-  if (!isMatch) {
-    res.status(401);
-    throw new Error('Email ou senha inválidos');
-  }
-
-  // Verifica se o usuário está ativo
-  if (!user.active) {
-    res.status(401);
-    throw new Error('Conta desativada');
-  }
-
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    token: generateToken(user.id),
-  });
 });
 
 // @desc    Obter perfil do usuário

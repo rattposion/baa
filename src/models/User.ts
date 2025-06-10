@@ -65,16 +65,21 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
-  try {
-    // Como o password está com select: false, precisamos garantir que temos acesso a ele
-    const user = await this.model('User').findById(this._id).select('+password');
-    if (!user?.password) return false;
-    
-    return await bcrypt.compare(enteredPassword, user.password);
-  } catch (error) {
-    console.error('Erro ao comparar senhas:', error);
-    return false;
+  if (!enteredPassword) {
+    throw new Error('Senha não fornecida');
   }
+
+  const user = await this.model('User').findById(this._id).select('+password');
+  
+  if (!user) {
+    throw new Error('Usuário não encontrado');
+  }
+
+  if (!user.password) {
+    throw new Error('Senha não definida para este usuário');
+  }
+
+  return await bcrypt.compare(enteredPassword, user.password);
 };
 
 export default mongoose.model<IUser, UserModel>('User', userSchema); 
