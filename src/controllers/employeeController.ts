@@ -7,7 +7,16 @@ import Employee from '../models/Employee';
 // @access  Private
 export const getEmployees = asyncHandler(async (_req: Request, res: Response) => {
   const employees = await Employee.find().select('-password');
-  res.json(employees);
+  const formattedEmployees = employees.map(employee => ({
+    _id: employee._id,
+    name: employee.name,
+    email: employee.email,
+    role: employee.role,
+    active: employee.active,
+    createdAt: employee.createdAt,
+    updatedAt: employee.updatedAt
+  }));
+  res.json(formattedEmployees);
 });
 
 // @desc    Obter funcionário por ID
@@ -17,7 +26,15 @@ export const getEmployeeById = asyncHandler(async (req: Request, res: Response) 
   const employee = await Employee.findById(req.params.id).select('-password');
   
   if (employee) {
-    res.json(employee);
+    res.json({
+      _id: employee._id,
+      name: employee.name,
+      email: employee.email,
+      role: employee.role,
+      active: employee.active,
+      createdAt: employee.createdAt,
+      updatedAt: employee.updatedAt
+    });
   } else {
     res.status(404);
     throw new Error('Funcionário não encontrado');
@@ -54,11 +71,13 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
 
   if (employee) {
     res.status(201).json({
-      id: employee._id,
+      _id: employee._id,
       name: employee.name,
       email: employee.email,
       role: employee.role,
-      active: employee.active
+      active: employee.active,
+      createdAt: employee.createdAt,
+      updatedAt: employee.updatedAt
     });
   } else {
     res.status(400);
@@ -75,7 +94,10 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
   if (employee) {
     // Se estiver atualizando o email, verificar se já está em uso
     if (req.body.email && req.body.email !== employee.email) {
-      const emailExists = await Employee.findOne({ email: req.body.email });
+      const emailExists = await Employee.findOne({ 
+        email: req.body.email,
+        _id: { $ne: req.params.id }
+      });
       if (emailExists) {
         res.status(400);
         throw new Error('Este email já está em uso');
@@ -93,11 +115,13 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
     const updatedEmployee = await employee.save();
 
     res.json({
-      id: updatedEmployee._id,
+      _id: updatedEmployee._id,
       name: updatedEmployee.name,
       email: updatedEmployee.email,
       role: updatedEmployee.role,
-      active: updatedEmployee.active
+      active: updatedEmployee.active,
+      createdAt: updatedEmployee.createdAt,
+      updatedAt: updatedEmployee.updatedAt
     });
   } else {
     res.status(404);
