@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import asyncHandler from 'express-async-handler';
-import bcrypt from 'bcryptjs';
 
 // @desc    Registrar usuário
 // @route   POST /api/auth/register

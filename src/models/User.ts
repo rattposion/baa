@@ -6,9 +6,18 @@ interface IUserMethods {
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
-type UserModel = mongoose.Model<IUser, {}, IUserMethods>;
+interface IUserDocument extends mongoose.Document {
+  name: string;
+  email: string;
+  password: string;
+  role: 'admin' | 'user';
+  active: boolean;
+  matchPassword(enteredPassword: string): Promise<boolean>;
+}
 
-const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
+type UserModel = mongoose.Model<IUserDocument, {}, IUserMethods>;
+
+const userSchema = new mongoose.Schema<IUserDocument, UserModel, IUserMethods>(
   {
     name: {
       type: String,
@@ -69,7 +78,7 @@ userSchema.methods.matchPassword = async function (enteredPassword: string): Pro
     throw new Error('Senha não fornecida');
   }
 
-  const user = await this.model('User').findById(this._id).select('+password');
+  const user = await this.model('User').findById(this._id).select('+password') as IUserDocument;
   
   if (!user) {
     throw new Error('Usuário não encontrado');
@@ -82,4 +91,4 @@ userSchema.methods.matchPassword = async function (enteredPassword: string): Pro
   return await bcrypt.compare(enteredPassword, user.password);
 };
 
-export default mongoose.model<IUser, UserModel>('User', userSchema); 
+export default mongoose.model<IUserDocument, UserModel>('User', userSchema); 
