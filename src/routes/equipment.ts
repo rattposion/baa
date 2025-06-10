@@ -11,15 +11,16 @@ import { isAdmin } from '../middleware/adminMiddleware';
 
 const router = express.Router();
 
-// Todas as rotas requerem autenticação e permissão de admin
+// Todas as rotas requerem autenticação
 router.use(authenticate);
-router.use(isAdmin);
 
-// Rotas de equipamentos
+// Rotas públicas (requerem apenas autenticação)
 router.get('/', getEquipments);
-router.post('/', createEquipment);
 router.get('/:id', getEquipmentById);
-router.put('/:id', updateEquipment);
-router.delete('/:id', deleteEquipment);
+
+// Rotas que requerem permissão de admin
+router.post('/', isAdmin, createEquipment);
+router.put('/:id', isAdmin, updateEquipment);
+router.delete('/:id', isAdmin, deleteEquipment);
 
 export default router; 
