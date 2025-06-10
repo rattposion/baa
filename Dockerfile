@@ -15,17 +15,25 @@ RUN npm config set legacy-peer-deps true \
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Instalar dependências
+# Instalar todas as dependências (incluindo devDependencies)
 RUN npm install
 
 # Copiar o código fonte
-COPY src ./src
+COPY . .
+
+# Limpar a pasta dist se existir
+RUN rm -rf dist || true
 
 # Compilar o TypeScript
 RUN npm run build
 
-# Remover dependências de desenvolvimento
-RUN npm prune --production
+# Verificar se a compilação foi bem sucedida
+RUN test -d dist && test -f dist/index.js
+
+# Remover dependências de desenvolvimento e arquivos fonte
+RUN npm prune --production \
+    && rm -rf src \
+    && rm -rf node_modules/@types
 
 # Configurar healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
