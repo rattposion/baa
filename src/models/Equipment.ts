@@ -1,12 +1,14 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IEquipment {
+  model: string;
+}
+
+export interface IEquipmentDocument extends Document {
   model: string;
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface IEquipmentDocument extends Document, IEquipment {}
 
 const equipmentSchema = new Schema({
   model: {

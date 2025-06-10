@@ -10,11 +10,12 @@ export interface IEmployee extends Document {
 
 export interface IEquipment {
   model: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
-export interface IEquipmentDocument extends Omit<Document, 'model'>, IEquipment {
+export interface IEquipmentDocument extends Document {
+  model: string;
+  createdAt: Date;
+  updatedAt: Date;
   _id: Types.ObjectId;
 }
 
