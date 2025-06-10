@@ -6,6 +6,9 @@ export interface IEquipment extends Document {
   status: 'operational' | 'maintenance' | 'inactive';
   serialNumber: string;
   description: string;
+  minStock: number;
+  currentStock: number;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +38,18 @@ const EquipmentSchema: Schema = new Schema({
   description: {
     type: String,
     trim: true
+  },
+  minStock: {
+    type: Number,
+    default: 0
+  },
+  currentStock: {
+    type: Number,
+    default: 0
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true

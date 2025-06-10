@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -24,7 +24,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as JwtPayload;
     req.user = decoded;
-    next();
+    return next();
   } catch (error) {
     return res.status(401).json({ message: 'Token inválido ou expirado' });
   }
