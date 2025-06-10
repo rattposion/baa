@@ -63,7 +63,7 @@ export const createMovement = asyncHandler(async (req: Request, res: Response): 
     type,
     description,
     date,
-    equipmentName: equipment.get('model'),
+    equipmentName: equipment.get('modelName'),
     timestamp: new Date(),
   });
 
@@ -88,7 +88,7 @@ export const updateMovement = asyncHandler(async (req: Request, res: Response): 
       throw new Error('Equipamento não encontrado');
     }
     movement.set('equipmentId', req.body.equipmentId);
-    movement.set('equipmentName', equipment.get('model'));
+    movement.set('equipmentName', equipment.get('modelName'));
   }
 
   if (req.body.quantity) {
