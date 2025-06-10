@@ -6,7 +6,7 @@ import Equipment from '../models/Equipment';
 // @route   GET /api/equipment
 // @access  Private
 export const getEquipments = asyncHandler(async (_req: Request, res: Response) => {
-  const equipment = await Equipment.find().sort({ model: 1 });
+  const equipment = await Equipment.find().sort({ modelName: 1 });
   res.json(equipment);
 });
 
@@ -28,22 +28,22 @@ export const getEquipmentById = asyncHandler(async (req: Request, res: Response)
 // @route   POST /api/equipment
 // @access  Private/Admin
 export const createEquipment = asyncHandler(async (req: Request, res: Response) => {
-  const { model } = req.body;
+  const { modelName } = req.body;
 
   // Validar campos obrigatórios
-  if (!model) {
+  if (!modelName) {
     res.status(400);
     throw new Error('Por favor, informe o modelo do equipamento');
   }
 
   // Verificar se já existe um equipamento com o mesmo modelo
-  const existingEquipment = await Equipment.findOne({ model });
+  const existingEquipment = await Equipment.findOne({ modelName });
   if (existingEquipment) {
     res.status(400);
     throw new Error('Já existe um equipamento com este modelo');
   }
 
-  const equipment = await Equipment.create({ model });
+  const equipment = await Equipment.create({ modelName });
   res.status(201).json(equipment);
 });
 
@@ -55,15 +55,15 @@ export const updateEquipment = asyncHandler(async (req: Request, res: Response) 
 
   if (equipment) {
     // Verificar se já existe outro equipamento com o mesmo modelo
-    if (req.body.model && req.body.model !== equipment.model) {
-      const existingEquipment = await Equipment.findOne({ model: req.body.model });
+    if (req.body.modelName && req.body.modelName !== equipment.modelName) {
+      const existingEquipment = await Equipment.findOne({ modelName: req.body.modelName });
       if (existingEquipment) {
         res.status(400);
         throw new Error('Já existe um equipamento com este modelo');
       }
     }
 
-    equipment.model = req.body.model || equipment.model;
+    equipment.modelName = req.body.modelName || equipment.modelName;
     const updatedEquipment = await equipment.save();
     res.json(updatedEquipment);
   } else {
