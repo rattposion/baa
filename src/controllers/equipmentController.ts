@@ -1,75 +1,88 @@
 import { Request, Response } from 'express';
+import asyncHandler from 'express-async-handler';
 import Equipment from '../models/Equipment';
 
-// Buscar todos os equipamentos
-export const getEquipments = async (_req: Request, res: Response): Promise<Response> => {
-  try {
-    const equipments = await Equipment.find();
-    return res.status(200).json(equipments);
-  } catch (error) {
-    return res.status(500).json({ message: 'Erro ao buscar equipamentos', error });
-  }
-};
+// @desc    Obter todos os equipamentos
+// @route   GET /api/equipment
+// @access  Private
+export const getEquipments = asyncHandler(async (_req: Request, res: Response) => {
+  const equipment = await Equipment.find().sort({ model: 1 });
+  res.json(equipment);
+});
 
-// Criar novo equipamento
-export const createEquipment = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const equipment = new Equipment(req.body);
-    const savedEquipment = await equipment.save();
-    return res.status(201).json(savedEquipment);
-  } catch (error) {
-    return res.status(400).json({ message: 'Erro ao criar equipamento', error });
+// @desc    Obter equipamento por ID
+// @route   GET /api/equipment/:id
+// @access  Private
+export const getEquipmentById = asyncHandler(async (req: Request, res: Response) => {
+  const equipment = await Equipment.findById(req.params.id);
+  
+  if (equipment) {
+    res.json(equipment);
+  } else {
+    res.status(404);
+    throw new Error('Equipamento não encontrado');
   }
-};
+});
 
-// Atualizar equipamento
-export const updateEquipment = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const { id } = req.params;
-    const equipment = await Equipment.findByIdAndUpdate(
-      id,
-      { ...req.body },
-      { new: true, runValidators: true }
-    );
-    
-    if (!equipment) {
-      return res.status(404).json({ message: 'Equipamento não encontrado' });
+// @desc    Criar equipamento
+// @route   POST /api/equipment
+// @access  Private/Admin
+export const createEquipment = asyncHandler(async (req: Request, res: Response) => {
+  const { model } = req.body;
+
+  // Validar campos obrigatórios
+  if (!model) {
+    res.status(400);
+    throw new Error('Por favor, informe o modelo do equipamento');
+  }
+
+  // Verificar se já existe um equipamento com o mesmo modelo
+  const existingEquipment = await Equipment.findOne({ model });
+  if (existingEquipment) {
+    res.status(400);
+    throw new Error('Já existe um equipamento com este modelo');
+  }
+
+  const equipment = await Equipment.create({ model });
+  res.status(201).json(equipment);
+});
+
+// @desc    Atualizar equipamento
+// @route   PUT /api/equipment/:id
+// @access  Private/Admin
+export const updateEquipment = asyncHandler(async (req: Request, res: Response) => {
+  const equipment = await Equipment.findById(req.params.id);
+
+  if (equipment) {
+    // Verificar se já existe outro equipamento com o mesmo modelo
+    if (req.body.model && req.body.model !== equipment.model) {
+      const existingEquipment = await Equipment.findOne({ model: req.body.model });
+      if (existingEquipment) {
+        res.status(400);
+        throw new Error('Já existe um equipamento com este modelo');
+      }
     }
-    
-    return res.status(200).json(equipment);
-  } catch (error) {
-    return res.status(400).json({ message: 'Erro ao atualizar equipamento', error });
-  }
-};
 
-// Deletar equipamento
-export const deleteEquipment = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const { id } = req.params;
-    const equipment = await Equipment.findByIdAndDelete(id);
-    
-    if (!equipment) {
-      return res.status(404).json({ message: 'Equipamento não encontrado' });
-    }
-    
-    return res.status(200).json({ message: 'Equipamento removido com sucesso' });
-  } catch (error) {
-    return res.status(400).json({ message: 'Erro ao deletar equipamento', error });
+    equipment.model = req.body.model || equipment.model;
+    const updatedEquipment = await equipment.save();
+    res.json(updatedEquipment);
+  } else {
+    res.status(404);
+    throw new Error('Equipamento não encontrado');
   }
-};
+});
 
-// Buscar equipamento por ID
-export const getEquipmentById = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    const { id } = req.params;
-    const equipment = await Equipment.findById(id);
-    
-    if (!equipment) {
-      return res.status(404).json({ message: 'Equipamento não encontrado' });
-    }
-    
-    return res.status(200).json(equipment);
-  } catch (error) {
-    return res.status(400).json({ message: 'Erro ao buscar equipamento', error });
+// @desc    Excluir equipamento
+// @route   DELETE /api/equipment/:id
+// @access  Private/Admin
+export const deleteEquipment = asyncHandler(async (req: Request, res: Response) => {
+  const equipment = await Equipment.findById(req.params.id);
+
+  if (equipment) {
+    await equipment.deleteOne();
+    res.json({ message: 'Equipamento removido' });
+  } else {
+    res.status(404);
+    throw new Error('Equipamento não encontrado');
   }
-}; 
+}); 

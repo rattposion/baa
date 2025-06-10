@@ -9,12 +9,14 @@ export interface IEmployee extends Document {
 }
 
 export interface IEquipment {
-  name: string;
+  id?: string;
   model: string;
-  description: string;
-  minStock: number;
   currentStock: number;
-  active: boolean;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IEquipmentDocument extends Omit<Document, '_id' | 'model'>, IEquipment {

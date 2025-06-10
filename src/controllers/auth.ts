@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import asyncHandler from 'express-async-handler';
+import bcrypt from 'bcryptjs';
 
 // @desc    Registrar usuário
 // @route   POST /api/auth/register
@@ -40,11 +41,31 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).select('+password');
+    // Busca o usuário incluindo o campo password
+    const user = await User.findOne({ email }).select('+password');
 
-  if (user && (await user.matchPassword(password))) {
+    if (!user) {
+      res.status(401);
+      throw new Error('Email ou senha inválidos');
+    }
+
+    // Verifica se a senha está correta
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      res.status(401);
+      throw new Error('Email ou senha inválidos');
+    }
+
+    // Verifica se o usuário está ativo
+    if (!user.active) {
+      res.status(401);
+      throw new Error('Conta desativada');
+    }
+
     res.json({
       id: user.id,
       name: user.name,
@@ -52,9 +73,9 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
       role: user.role,
       token: generateToken(user.id),
     });
-  } else {
-    res.status(401);
-    throw new Error('Email ou senha inválidos');
+  } catch (error: any) {
+    res.status(error.status || 500);
+    throw error;
   }
 });
 
