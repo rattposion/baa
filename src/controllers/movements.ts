@@ -47,6 +47,7 @@ export const getMovementById = asyncHandler(async (req: Request, res: Response):
 // @route   POST /api/movements
 // @access  Private
 export const createMovement = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  console.log('Body recebido na movimentação:', req.body);
   const { equipmentId, quantity, type, description, date } = req.body;
 
   // Verificar se o equipamento existe
