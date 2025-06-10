@@ -33,7 +33,7 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user.id),
+      token: generateToken(user.id, user.role),
     });
   } else {
     res.status(400);
@@ -80,7 +80,7 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user.id),
+      token: generateToken(user.id, user.role),
     });
   } catch (error: any) {
     // Se for um erro que já definiu o status, mantém o status
@@ -111,14 +111,14 @@ export const getProfile = asyncHandler(async (req: Request, res: Response): Prom
 });
 
 // Gerar token JWT
-const generateToken = (id: string): string => {
+const generateToken = (id: string, role: string): string => {
   const jwtSecret = process.env.JWT_SECRET;
   
   if (!jwtSecret) {
     throw new Error('JWT_SECRET não está definido');
   }
 
-  return jwt.sign({ id }, jwtSecret, {
+  return jwt.sign({ id, role }, jwtSecret, {
     expiresIn: '30d',
   });
 }; 
