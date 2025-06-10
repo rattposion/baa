@@ -1,14 +1,22 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-const employeeSchema = new mongoose.Schema({
+export interface IEmployee extends Document {
+  name: string;
+  department: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const EmployeeSchema: Schema = new Schema({
   name: {
     type: String,
-    required: [true, 'Por favor, informe o nome do funcionário'],
+    required: [true, 'Nome é obrigatório'],
     trim: true
   },
   department: {
     type: String,
-    required: [true, 'Por favor, informe o departamento'],
+    required: [true, 'Departamento é obrigatório'],
     trim: true
   },
   active: {
@@ -19,6 +27,4 @@ const employeeSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Employee = mongoose.model('Employee', employeeSchema);
-
-export default Employee; 
+export default mongoose.model<IEmployee>('Employee', EmployeeSchema); 
