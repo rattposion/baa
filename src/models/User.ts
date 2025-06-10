@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser } from '../types';
 
 interface IUserMethods {
   matchPassword(enteredPassword: string): Promise<boolean>;

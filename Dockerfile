@@ -21,14 +21,10 @@ RUN npm install
 # Copiar o código fonte
 COPY . .
 
-# Limpar a pasta dist se existir
-RUN rm -rf dist || true
-
-# Compilar o TypeScript
-RUN npm run build
-
-# Verificar se a compilação foi bem sucedida
-RUN test -d dist && test -f dist/index.js
+# Limpar a pasta dist se existir e compilar
+RUN npm run clean || true && \
+    npm run build && \
+    test -d dist && test -f dist/index.js
 
 # Remover dependências de desenvolvimento e arquivos fonte
 RUN npm prune --production \
