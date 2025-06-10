@@ -6,8 +6,15 @@ import Equipment from '../models/Equipment';
 // @route   GET /api/equipment
 // @access  Private
 export const getEquipments = asyncHandler(async (_req: Request, res: Response) => {
-  const equipment = await Equipment.find().sort({ modelName: 1 });
-  res.json(equipment);
+  const equipments = await Equipment.find().sort({ modelName: 1 });
+  const result = equipments.map(e => ({
+    id: e._id.toString(),
+    modelName: e.modelName,
+    createdAt: e.createdAt,
+    updatedAt: e.updatedAt
+    // ...adicione outros campos se necessário
+  }));
+  res.json(result);
 });
 
 // @desc    Obter equipamento por ID
