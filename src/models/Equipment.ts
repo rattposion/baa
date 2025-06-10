@@ -21,6 +21,22 @@ const equipmentSchema = new Schema({
   timestamps: true
 });
 
+// Remove o índice serialNumber_1 se ele existir
+mongoose.connection.on('connected', async () => {
+  try {
+    const collection = mongoose.connection.collection('equipment');
+    const indexes = await collection.indexes();
+    const hasSerialNumberIndex = indexes.some(index => index.name === 'serialNumber_1');
+    
+    if (hasSerialNumberIndex) {
+      await collection.dropIndex('serialNumber_1');
+      console.log('Índice serialNumber_1 removido com sucesso');
+    }
+  } catch (error) {
+    console.error('Erro ao remover índice:', error);
+  }
+});
+
 const Equipment = mongoose.model<IEquipmentDocument>('Equipment', equipmentSchema);
 
 export default Equipment; 

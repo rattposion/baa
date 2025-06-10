@@ -1,11 +1,8 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const removeIndex = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || '');
+    await mongoose.connect('mongodb://localhost:27017/test');
     console.log('Conectado ao MongoDB');
 
     const collection = mongoose.connection.collection('equipment');
