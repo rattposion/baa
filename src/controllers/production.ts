@@ -70,7 +70,7 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     quantity,
     date,
     employeeName: employee.name,
-    equipmentModel: equipment.get('model'),
+    equipmentModel: equipment.get('modelName'),
     timestamp: new Date(),
   });
 
@@ -105,7 +105,7 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
       throw new Error('Equipamento não encontrado');
     }
     production.set('equipmentId', req.body.equipmentId);
-    production.set('equipmentModel', equipment.get('model'));
+    production.set('equipmentModel', equipment.get('modelName'));
   }
 
   if (req.body.quantity) {
