@@ -10,6 +10,11 @@ import bcrypt from 'bcryptjs';
 export const register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
+  if (!name || !email || !password) {
+    res.status(400);
+    throw new Error('Por favor, preencha todos os campos');
+  }
+
   const userExists = await User.findOne({ email });
 
   if (userExists) {
@@ -41,42 +46,42 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Busca o usuário incluindo o campo password
-    const user = await User.findOne({ email }).select('+password');
-
-    if (!user) {
-      res.status(401);
-      throw new Error('Email ou senha inválidos');
-    }
-
-    // Verifica se a senha está correta
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      res.status(401);
-      throw new Error('Email ou senha inválidos');
-    }
-
-    // Verifica se o usuário está ativo
-    if (!user.active) {
-      res.status(401);
-      throw new Error('Conta desativada');
-    }
-
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id),
-    });
-  } catch (error: any) {
-    res.status(error.status || 500);
-    throw error;
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Por favor, informe email e senha');
   }
+
+  // Busca o usuário incluindo o campo password
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user) {
+    res.status(401);
+    throw new Error('Email ou senha inválidos');
+  }
+
+  // Verifica se a senha está correta usando o método do modelo
+  const isMatch = await user.matchPassword(password);
+
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Email ou senha inválidos');
+  }
+
+  // Verifica se o usuário está ativo
+  if (!user.active) {
+    res.status(401);
+    throw new Error('Conta desativada');
+  }
+
+  res.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    token: generateToken(user.id),
+  });
 });
 
 // @desc    Obter perfil do usuário
@@ -100,10 +105,13 @@ export const getProfile = asyncHandler(async (req: Request, res: Response): Prom
 
 // Gerar token JWT
 const generateToken = (id: string): string => {
-  if (!process.env.JWT_SECRET) {
+  const jwtSecret = process.env.JWT_SECRET;
+  
+  if (!jwtSecret) {
     throw new Error('JWT_SECRET não está definido');
   }
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+
+  return jwt.sign({ id }, jwtSecret, {
     expiresIn: '30d',
   });
 }; 
