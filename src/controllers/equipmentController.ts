@@ -51,7 +51,7 @@ export const createEquipment = asyncHandler(async (req: Request, res: Response) 
     throw new Error('Já existe um equipamento com este modelo');
   }
 
-  const equipment = await Equipment.create({ modelName });
+  const equipment = await Equipment.create({ modelName, currentStock: 0 });
   res.status(201).json(equipment);
 });
 
@@ -72,6 +72,9 @@ export const updateEquipment = asyncHandler(async (req: Request, res: Response) 
     }
 
     equipment.modelName = req.body.modelName || equipment.modelName;
+    if (typeof req.body.currentStock === 'number') {
+      equipment.currentStock = req.body.currentStock;
+    }
     const updatedEquipment = await equipment.save();
     res.json(updatedEquipment);
   } else {
