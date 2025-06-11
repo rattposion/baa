@@ -6,7 +6,7 @@ import asyncHandler from 'express-async-handler';
 // @desc    Registrar usuário
 // @route   POST /api/auth/register
 // @access  Public
-export const register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+const register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -41,7 +41,7 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 // @desc    Login do usuário
 // @route   POST /api/auth/login
 // @access  Public
-export const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+const login = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -100,7 +100,7 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
 // @desc    Obter perfil do usuário
 // @route   GET /api/auth/profile
 // @access  Private
-export const getProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+const getProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const user = await User.findById(req.user?.id);
 
   if (user) {
@@ -117,13 +117,13 @@ export const getProfile = asyncHandler(async (req: Request, res: Response): Prom
 });
 
 // Listar usuários pendentes (active: false)
-export const listPendingUsers = asyncHandler(async (_req: Request, res: Response) => {
+const listPendingUsers = asyncHandler(async (_req: Request, res: Response) => {
   const users = await User.find({ active: false }).select('-password');
   res.json(users);
 });
 
 // Aprovar usuário (ativar)
-export const approveUser = asyncHandler(async (req: Request, res: Response) => {
+const approveUser = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { active } = req.body;
   const user = await User.findById(id);
@@ -137,9 +137,21 @@ export const approveUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // Listar todos os usuários cadastrados
-export const listAllUsers = asyncHandler(async (_req: Request, res: Response) => {
+const listAllUsers = asyncHandler(async (_req: Request, res: Response) => {
   const users = await User.find().select('-password');
   res.json(users);
+});
+
+// Deletar usuário
+const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    res.status(404);
+    throw new Error('Usuário não encontrado');
+  }
+  await user.deleteOne();
+  res.json({ message: 'Usuário excluído com sucesso!' });
 });
 
 // Gerar token JWT
@@ -159,4 +171,14 @@ const generateToken = (id: string, role: string): string => {
     console.error('Erro ao assinar token JWT:', error);
     throw new Error('Erro ao gerar token de autenticação');
   }
+};
+
+export {
+  register,
+  login,
+  getProfile,
+  listPendingUsers,
+  approveUser,
+  listAllUsers,
+  deleteUser
 }; 
