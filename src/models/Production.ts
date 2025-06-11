@@ -53,4 +53,4 @@ const productionSchema = new mongoose.Schema<ProductionSchemaType>(
   }
 );
 
-export default mongoose.model<IProduction>('Production', productionSchema); 
+export default mongoose.model('Production', productionSchema); 
