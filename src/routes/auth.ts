@@ -18,6 +18,9 @@ router.patch('/approve/:id', approveUser);
 // Listar todos os usuários cadastrados
 router.get('/all', listAllUsers);
 
+// Deletar usuário
+router.delete('/user/:id', deleteUser);
+
 // Rota temporária para criar admin
 router.post('/create-admin', async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -47,8 +50,5 @@ router.post('/create-admin', async (_req: Request, res: Response): Promise<void>
     res.status(500).json({ message: 'Erro ao criar usuário administrador' });
   }
 });
-
-// Deletar usuário
-router.delete('/:id', deleteUser);
 
 export default router; 
