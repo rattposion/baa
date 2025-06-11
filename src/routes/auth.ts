@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { register, login, getProfile, listPendingUsers, approveUser } from '../controllers/auth';
+import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers } from '../controllers/auth';
 import { protect } from '../middlewares/auth';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
@@ -14,6 +14,9 @@ router.get('/profile', protect, getProfile);
 router.get('/pending', listPendingUsers);
 // Aprovar usuário
 router.patch('/approve/:id', approveUser);
+
+// Listar todos os usuários cadastrados
+router.get('/all', listAllUsers);
 
 // Rota temporária para criar admin
 router.post('/create-admin', async (_req: Request, res: Response): Promise<void> => {

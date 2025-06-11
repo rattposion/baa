@@ -135,6 +135,12 @@ export const approveUser = asyncHandler(async (req: Request, res: Response) => {
   res.json({ message: 'Usuário aprovado com sucesso!' });
 });
 
+// Listar todos os usuários cadastrados
+export const listAllUsers = asyncHandler(async (_req: Request, res: Response) => {
+  const users = await User.find().select('-password');
+  res.json(users);
+});
+
 // Gerar token JWT
 const generateToken = (id: string, role: string): string => {
   const jwtSecret = process.env.JWT_SECRET;
