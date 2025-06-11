@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { IProduction } from '../types';
+import { IProduction, ProductionSchemaType } from '../types';
 
-const productionSchema = new mongoose.Schema<IProduction>(
+const productionSchema = new mongoose.Schema<ProductionSchemaType>(
   {
     employeeId: {
       type: String,
