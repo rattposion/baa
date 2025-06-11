@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 import Production from '../models/Production';
 import Employee from '../models/Employee';
 import Equipment from '../models/Equipment';
@@ -50,6 +51,17 @@ export const getProductionById = asyncHandler(async (req: Request, res: Response
 export const createProduction = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { employeeId, equipmentId, quantity, date } = req.body;
 
+  // Validar se os IDs são ObjectIds válidos
+  if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+    res.status(400);
+    throw new Error('ID do funcionário inválido');
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(equipmentId)) {
+    res.status(400);
+    throw new Error('ID do equipamento inválido');
+  }
+
   // Verificar se o funcionário existe
   const employee = await Employee.findById(employeeId);
   if (!employee) {
@@ -89,6 +101,11 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
   }
 
   if (req.body.employeeId) {
+    if (!mongoose.Types.ObjectId.isValid(req.body.employeeId)) {
+      res.status(400);
+      throw new Error('ID do funcionário inválido');
+    }
+
     const employee = await Employee.findById(req.body.employeeId);
     if (!employee) {
       res.status(404);
@@ -99,6 +116,11 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
   }
 
   if (req.body.equipmentId) {
+    if (!mongoose.Types.ObjectId.isValid(req.body.equipmentId)) {
+      res.status(400);
+      throw new Error('ID do equipamento inválido');
+    }
+
     const equipment = await Equipment.findById(req.body.equipmentId);
     if (!equipment) {
       res.status(404);
