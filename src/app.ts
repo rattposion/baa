@@ -18,7 +18,7 @@ const app = express();
 app.use(cors({
   origin: ['https://decore-mix.vercel.app', 'null', 'file://', 'http://localhost:5173', 'http://localhost:8000'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
