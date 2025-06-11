@@ -29,6 +29,7 @@ export const getEmployeeById = asyncHandler(async (req: Request, res: Response) 
 // @route   POST /api/employees
 // @access  Private/Admin
 export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
+  console.log('Entrou na função createEmployee');
   const { name, email, password, role } = req.body;
 
   console.log('Dados recebidos para criar funcionário:', { name, email, role });
