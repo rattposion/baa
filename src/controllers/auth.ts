@@ -125,14 +125,15 @@ export const listPendingUsers = asyncHandler(async (_req: Request, res: Response
 // Aprovar usuário (ativar)
 export const approveUser = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { active } = req.body;
   const user = await User.findById(id);
   if (!user) {
     res.status(404);
     throw new Error('Usuário não encontrado');
   }
-  user.active = true;
+  user.active = typeof active === 'boolean' ? active : true;
   await user.save();
-  res.json({ message: 'Usuário aprovado com sucesso!' });
+  res.json({ message: 'Usuário atualizado com sucesso!' });
 });
 
 // Listar todos os usuários cadastrados
