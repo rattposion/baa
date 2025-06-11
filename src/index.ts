@@ -46,4 +46,15 @@ export interface IUser extends Document {
   password: string;
   role: 'admin' | 'user';
   active: boolean;
-} 
+}
+
+export type ProductionSchemaType = {
+  employeeId: string;
+  employeeName: string;
+  equipmentId: string;
+  equipmentModel: string;
+  quantity: number;
+  date: string;
+  timestamp: Date;
+  isReset?: boolean;
+}; 
