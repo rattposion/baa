@@ -34,6 +34,10 @@ const productionSchema = new mongoose.Schema<IProduction>(
       type: Date,
       required: [true, 'Timestamp é obrigatório'],
     },
+    isReset: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -96,4 +96,10 @@ export const deleteEquipment = asyncHandler(async (req: Request, res: Response) 
     res.status(404);
     throw new Error('Equipamento não encontrado');
   }
+});
+
+// Novo endpoint para equipamentos resetados
+export const getResetedEquipments = asyncHandler(async (_req: Request, res: Response) => {
+  const equipments = await Equipment.find({ totalResets: { $gt: 0 } }).sort({ modelName: 1 });
+  res.json(equipments);
 }); 

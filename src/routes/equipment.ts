@@ -4,7 +4,8 @@ import {
   createEquipment,
   updateEquipment,
   deleteEquipment,
-  getEquipmentById
+  getEquipmentById,
+  getResetedEquipments
 } from '../controllers/equipmentController';
 import { authenticate } from '../middleware/authMiddleware';
 import { isAdmin } from '../middleware/adminMiddleware';
@@ -17,6 +18,7 @@ router.use(authenticate);
 // Rotas públicas (requerem apenas autenticação)
 router.get('/', getEquipments);
 router.get('/:id', getEquipmentById);
+router.get('/reseted', getResetedEquipments);
 
 // Rotas que requerem permissão de admin
 router.post('/', isAdmin, createEquipment);

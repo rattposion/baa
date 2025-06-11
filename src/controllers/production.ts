@@ -92,6 +92,12 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     isReset: isResetBool,
   });
 
+  // Se for reset, incrementa o campo totalResets do equipamento
+  if (isResetBool) {
+    equipment.totalResets = (equipment.totalResets || 0) + quantity;
+    await equipment.save();
+  }
+
   // Só movimenta estoque se NÃO for reset
   if (!isResetBool) {
     // Atualiza o estoque do equipamento

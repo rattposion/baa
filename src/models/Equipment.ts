@@ -3,11 +3,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IEquipment {
   modelName: string;
   currentStock: number;
+  totalResets: number;
 }
 
 export interface IEquipmentDocument extends Document {
   modelName: string;
   currentStock: number;
+  totalResets: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +22,11 @@ const equipmentSchema = new Schema({
     unique: true
   },
   currentStock: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  totalResets: {
     type: Number,
     required: true,
     default: 0
