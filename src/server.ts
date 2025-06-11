@@ -48,10 +48,20 @@ app.use(express.json());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // limite de 100 requisições por IP
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 1000, // limite de 100 requisições por IP por minuto
+  standardHeaders: true, // Retorna rate limit info nos headers `RateLimit-*`
+  legacyHeaders: false, // Desabilita os headers `X-RateLimit-*`
+  message: {
+    status: 429,
+    message: 'Muitas requisições deste IP, por favor tente novamente em alguns minutos.'
+  }
 });
-app.use(limiter);
+
+// Aplica o rate limiter apenas em produção
+if (process.env.NODE_ENV === 'production') {
+  app.use(limiter);
+}
 
 // Rotas
 app.use('/api', healthRoutes);
