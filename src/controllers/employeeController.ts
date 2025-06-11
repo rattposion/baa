@@ -12,6 +12,7 @@ export const getEmployees = asyncHandler(async (_req: Request, res: Response) =>
     name: employee.name,
     email: employee.email,
     role: employee.role,
+    department: employee.department || '',
     active: employee.active,
     createdAt: employee.createdAt,
     updatedAt: employee.updatedAt

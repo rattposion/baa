@@ -7,6 +7,7 @@ export interface IEmployee extends Document {
   password: string;
   role: 'admin' | 'user';
   active: boolean;
+  department?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -40,6 +41,10 @@ const employeeSchema = new Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  department: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true
