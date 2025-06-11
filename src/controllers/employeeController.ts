@@ -32,6 +32,7 @@ export const getEmployeeById = asyncHandler(async (req: Request, res: Response) 
       name: employee.name,
       email: employee.email,
       role: employee.role,
+      department: employee.department || '',
       active: employee.active,
       createdAt: employee.createdAt,
       updatedAt: employee.updatedAt
@@ -46,7 +47,7 @@ export const getEmployeeById = asyncHandler(async (req: Request, res: Response) 
 // @route   POST /api/employees
 // @access  Private/Admin
 export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, department } = req.body;
 
   // Validar campos obrigatórios
   if (!name || !email || !password) {
@@ -67,6 +68,7 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
     email,
     password,
     role: role || 'user',
+    department: department || '',
     active: true
   });
 
@@ -76,6 +78,7 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
       name: employee.name,
       email: employee.email,
       role: employee.role,
+      department: employee.department || '',
       active: employee.active,
       createdAt: employee.createdAt,
       updatedAt: employee.updatedAt
@@ -111,6 +114,7 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
       employee.password = req.body.password;
     }
     employee.role = req.body.role || employee.role;
+    employee.department = req.body.department || employee.department;
     employee.active = req.body.active !== undefined ? req.body.active : employee.active;
 
     const updatedEmployee = await employee.save();
@@ -120,6 +124,7 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
       name: updatedEmployee.name,
       email: updatedEmployee.email,
       role: updatedEmployee.role,
+      department: updatedEmployee.department || '',
       active: updatedEmployee.active,
       createdAt: updatedEmployee.createdAt,
       updatedAt: updatedEmployee.updatedAt
