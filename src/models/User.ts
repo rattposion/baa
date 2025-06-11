@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema<IUserDocument, UserModel, IUserMethods>(
   },
   {
     timestamps: true,
+    collection: 'users',
     toJSON: {
       virtuals: true,
       transform: function (_, ret) {
@@ -63,13 +64,34 @@ const userSchema = new mongoose.Schema<IUserDocument, UserModel, IUserMethods>(
 );
 
 userSchema.pre('save', async function (next) {
+  console.log('Tentando salvar usuário:', {
+    name: this.name,
+    email: this.email,
+    role: this.role,
+    isModified: this.isModified('password')
+  });
+
   if (!this.isModified('password')) {
     return next();
   }
   
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    console.log('Senha hasheada com sucesso para usuário:', this.email);
+    next();
+  } catch (error) {
+    console.error('Erro ao hashear senha:', error);
+    next(error);
+  }
+});
+
+userSchema.post('save', function(doc) {
+  console.log('Usuário salvo com sucesso:', {
+    id: doc._id,
+    name: doc.name,
+    email: doc.email
+  });
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
@@ -77,17 +99,26 @@ userSchema.methods.matchPassword = async function (enteredPassword: string): Pro
     throw new Error('Senha não fornecida');
   }
 
-  const user = await this.model('User').findById(this._id).select('+password') as IUserDocument;
-  
-  if (!user) {
-    throw new Error('Usuário não encontrado');
-  }
+  try {
+    const user = await this.model('User').findById(this._id).select('+password') as IUserDocument;
+    
+    if (!user) {
+      throw new Error('Usuário não encontrado');
+    }
 
-  if (!user.password) {
-    throw new Error('Senha não definida para este usuário');
-  }
+    if (!user.password) {
+      throw new Error('Senha não definida para este usuário');
+    }
 
-  return await bcrypt.compare(enteredPassword, user.password);
+    const isMatch = await bcrypt.compare(enteredPassword, user.password);
+    console.log('Comparação de senha:', { userId: user._id, isMatch });
+    return isMatch;
+  } catch (error) {
+    console.error('Erro ao comparar senha:', error);
+    throw error;
+  }
 };
 
-export default mongoose.model<IUserDocument, UserModel>('User', userSchema); 
+const User = mongoose.model<IUserDocument, UserModel>('User', userSchema);
+
+export default User; 

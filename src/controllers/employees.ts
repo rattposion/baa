@@ -32,6 +32,8 @@ export const getEmployeeById = asyncHandler(async (req: Request, res: Response) 
 export const createEmployee = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
 
+  console.log('Dados recebidos para criar funcionário:', { name, email, role });
+
   // Validar campos obrigatórios
   if (!name || !email || !password) {
     res.status(400);
@@ -41,6 +43,8 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
   // Verificar se o email já está em uso em ambas as coleções
   const employeeExists = await Employee.findOne({ email });
   const userExists = await User.findOne({ email });
+  
+  console.log('Verificação de email existente:', { employeeExists: !!employeeExists, userExists: !!userExists });
   
   if (employeeExists || userExists) {
     res.status(400);
@@ -52,6 +56,8 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    console.log('Senha hasheada com sucesso');
+
     // Criar o funcionário
     const employee = await Employee.create({
       name,
@@ -60,6 +66,8 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
       role: role || 'user',
       active: true
     });
+
+    console.log('Funcionário criado:', { id: employee._id, name: employee.name, email: employee.email });
 
     // Criar o usuário correspondente
     const user = await User.create({
@@ -70,7 +78,22 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
       active: true
     });
 
+    console.log('Usuário criado:', { id: user._id, name: user.name, email: user.email });
+
     if (employee && user) {
+      // Verificar se os registros foram realmente salvos
+      const savedEmployee = await Employee.findById(employee._id);
+      const savedUser = await User.findById(user._id);
+
+      console.log('Verificação pós-criação:', {
+        employeeSaved: !!savedEmployee,
+        userSaved: !!savedUser
+      });
+
+      if (!savedEmployee || !savedUser) {
+        throw new Error('Erro ao verificar registros salvos');
+      }
+
       res.status(201).json({
         id: employee._id,
         name: employee.name,
@@ -80,16 +103,22 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
       });
     } else {
       // Se algo der errado, tentar remover o que foi criado
-      if (employee) await employee.deleteOne();
-      if (user) await user.deleteOne();
+      if (employee) {
+        console.log('Removendo funcionário após erro:', employee._id);
+        await employee.deleteOne();
+      }
+      if (user) {
+        console.log('Removendo usuário após erro:', user._id);
+        await user.deleteOne();
+      }
       
       res.status(400);
       throw new Error('Erro ao criar funcionário');
     }
   } catch (error) {
-    console.error('Erro ao criar funcionário:', error);
+    console.error('Erro detalhado ao criar funcionário:', error);
     res.status(500);
-    throw new Error('Erro ao criar funcionário');
+    throw new Error(`Erro ao criar funcionário: ${error.message}`);
   }
 });
 
@@ -100,11 +129,23 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
   const employee = await Employee.findById(req.params.id);
   const user = employee ? await User.findOne({ email: employee.email }) : null;
 
+  console.log('Dados para atualização:', {
+    employeeId: req.params.id,
+    employeeFound: !!employee,
+    userFound: !!user,
+    updateData: req.body
+  });
+
   if (employee) {
     // Se estiver atualizando o email, verificar se já está em uso
     if (req.body.email && req.body.email !== employee.email) {
       const emailExists = await Employee.findOne({ email: req.body.email });
       const userEmailExists = await User.findOne({ email: req.body.email });
+      
+      console.log('Verificação de email para atualização:', {
+        emailExists: !!emailExists,
+        userEmailExists: !!userEmailExists
+      });
       
       if (emailExists || userEmailExists) {
         res.status(400);
@@ -128,6 +169,7 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
       employee.active = req.body.active !== undefined ? req.body.active : employee.active;
 
       const updatedEmployee = await employee.save();
+      console.log('Funcionário atualizado:', { id: updatedEmployee._id, name: updatedEmployee.name });
 
       // Atualizar usuário correspondente
       if (user) {
@@ -140,7 +182,11 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
         }
         user.role = req.body.role || user.role;
         user.active = req.body.active !== undefined ? req.body.active : user.active;
-        await user.save();
+        
+        const updatedUser = await user.save();
+        console.log('Usuário atualizado:', { id: updatedUser._id, name: updatedUser.name });
+      } else {
+        console.log('Usuário não encontrado para atualização');
       }
 
       res.json({
@@ -151,9 +197,9 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
         active: updatedEmployee.active
       });
     } catch (error) {
-      console.error('Erro ao atualizar funcionário:', error);
+      console.error('Erro detalhado ao atualizar funcionário:', error);
       res.status(500);
-      throw new Error('Erro ao atualizar funcionário');
+      throw new Error(`Erro ao atualizar funcionário: ${error.message}`);
     }
   } else {
     res.status(404);
