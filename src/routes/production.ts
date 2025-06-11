@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import {
   getProduction,
   getProductionById,
@@ -6,17 +6,17 @@ import {
   updateProduction,
   deleteProduction,
 } from '../controllers/production';
-import { protect, admin } from '../middlewares/auth';
+import { authenticateToken } from '../middleware/auth';
 
-const router = express.Router();
+const router = Router();
 
 router.route('/')
-  .get(protect, getProduction)
-  .post(protect, createProduction);
+  .get(authenticateToken, getProduction)
+  .post(authenticateToken, createProduction);
 
 router.route('/:id')
-  .get(protect, getProductionById)
-  .put(protect, admin, updateProduction)
-  .delete(protect, admin, deleteProduction);
+  .get(authenticateToken, getProductionById)
+  .put(authenticateToken, updateProduction)
+  .delete(authenticateToken, deleteProduction);
 
 export default router; 
