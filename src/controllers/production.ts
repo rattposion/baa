@@ -86,7 +86,7 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     employeeName: employee.name,
     equipmentModel: equipment.get('modelName'),
     timestamp: new Date(),
-    isReset: isReset || false,
+    isReset: isReset === true || isReset === 'true',
   });
 
   // Só movimenta estoque se NÃO for reset
