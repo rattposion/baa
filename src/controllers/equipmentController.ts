@@ -11,6 +11,7 @@ export const getEquipments = asyncHandler(async (_req: Request, res: Response) =
     id: String(e._id),
     modelName: e.modelName,
     currentStock: typeof e.currentStock === 'number' ? e.currentStock : 0,
+    totalResets: typeof e.totalResets === 'number' ? e.totalResets : 0,
     createdAt: e.createdAt,
     updatedAt: e.updatedAt
     // ...adicione outros campos se necessário
