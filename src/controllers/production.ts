@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import mongoose from 'mongoose';
 import Production from '../models/Production';
-import Employee from '../models/Employee';
+import User from '../models/User';
 import Equipment from '../models/Equipment';
 
 // @desc    Obter todos os registros de produção
@@ -50,6 +50,7 @@ export const getProductionById = asyncHandler(async (req: Request, res: Response
 // @access  Private
 export const createProduction = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { employeeId, equipmentId, quantity, date } = req.body;
+  console.log('employeeId recebido:', employeeId);
 
   // Validar se os IDs são ObjectIds válidos
   if (!mongoose.Types.ObjectId.isValid(employeeId)) {
@@ -63,7 +64,7 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
   }
 
   // Verificar se o funcionário existe
-  const employee = await Employee.findById(employeeId);
+  const employee = await User.findById(employeeId);
   if (!employee) {
     res.status(404);
     throw new Error('Funcionário não encontrado');
@@ -106,7 +107,7 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
       throw new Error('ID do funcionário inválido');
     }
 
-    const employee = await Employee.findById(req.body.employeeId);
+    const employee = await User.findById(req.body.employeeId);
     if (!employee) {
       res.status(404);
       throw new Error('Funcionário não encontrado');
