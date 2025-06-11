@@ -25,15 +25,12 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
     name,
     email,
     password,
+    active: false,
   });
 
   if (user) {
     res.status(201).json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id, user.role),
+      message: 'Cadastro realizado! Aguarde aprovação do administrador.'
     });
   } else {
     res.status(400);
@@ -117,6 +114,25 @@ export const getProfile = asyncHandler(async (req: Request, res: Response): Prom
     res.status(404);
     throw new Error('Usuário não encontrado');
   }
+});
+
+// Listar usuários pendentes (active: false)
+export const listPendingUsers = asyncHandler(async (_req: Request, res: Response) => {
+  const users = await User.find({ active: false }).select('-password');
+  res.json(users);
+});
+
+// Aprovar usuário (ativar)
+export const approveUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    res.status(404);
+    throw new Error('Usuário não encontrado');
+  }
+  user.active = true;
+  await user.save();
+  res.json({ message: 'Usuário aprovado com sucesso!' });
 });
 
 // Gerar token JWT
