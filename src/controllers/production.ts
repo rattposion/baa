@@ -49,7 +49,7 @@ export const getProductionById = asyncHandler(async (req: Request, res: Response
 // @route   POST /api/production
 // @access  Private
 export const createProduction = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { employeeId, equipmentId, quantity, date } = req.body;
+  const { employeeId, equipmentId, quantity, date, isReset } = req.body;
   console.log('employeeId recebido:', employeeId);
 
   // Validar se os IDs são ObjectIds válidos
@@ -77,6 +77,7 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     throw new Error('Equipamento não encontrado');
   }
 
+  // Cria o registro de produção
   const production = await Production.create({
     employeeId,
     equipmentId,
@@ -85,7 +86,27 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     employeeName: employee.name,
     equipmentModel: equipment.get('modelName'),
     timestamp: new Date(),
+    isReset: isReset || false,
   });
+
+  // Só movimenta estoque se NÃO for reset
+  if (!isReset) {
+    // Atualiza o estoque do equipamento
+    equipment.currentStock = (equipment.currentStock || 0) + quantity;
+    await equipment.save();
+
+    // Cria o registro de movimentação
+    const Movement = require('../models/Movement').default;
+    await Movement.create({
+      equipmentId,
+      equipmentName: equipment.get('modelName'),
+      quantity,
+      type: 'entrada',
+      description: `Entrada por produção - ${equipment.get('modelName')}`,
+      date: date,
+      timestamp: new Date(),
+    });
+  }
 
   res.status(201).json(production);
 });
