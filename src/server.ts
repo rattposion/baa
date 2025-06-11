@@ -22,6 +22,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:5173',
   'https://decore-gray.vercel.app'
 ];
 
