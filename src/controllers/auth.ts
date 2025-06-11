@@ -75,14 +75,23 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
       throw new Error('Email ou senha inválidos');
     }
 
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user.id, user.role),
-    });
+    try {
+      const token = generateToken(user.id, user.role);
+      
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token,
+      });
+    } catch (tokenError) {
+      console.error('Erro ao gerar token:', tokenError);
+      res.status(500);
+      throw new Error('Erro ao gerar token de autenticação');
+    }
   } catch (error: any) {
+    console.error('Erro no login:', error);
     // Se for um erro que já definiu o status, mantém o status
     if (!res.statusCode || res.statusCode === 200) {
       res.status(401);
@@ -115,10 +124,16 @@ const generateToken = (id: string, role: string): string => {
   const jwtSecret = process.env.JWT_SECRET;
   
   if (!jwtSecret) {
-    throw new Error('JWT_SECRET não está definido');
+    console.error('JWT_SECRET não está definido no ambiente');
+    throw new Error('Erro de configuração do servidor');
   }
 
-  return jwt.sign({ id, role }, jwtSecret, {
-    expiresIn: '30d',
-  });
+  try {
+    return jwt.sign({ id, role }, jwtSecret, {
+      expiresIn: '30d',
+    });
+  } catch (error) {
+    console.error('Erro ao assinar token JWT:', error);
+    throw new Error('Erro ao gerar token de autenticação');
+  }
 }; 
