@@ -1,10 +1,8 @@
-import express, { Request, Response } from 'express';
+import { Router } from 'express';
 import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers, deleteUser, refreshToken } from '../controllers/auth';
 import { protect } from '../middlewares/auth';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
-import { Router } from 'express';
-import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -25,7 +23,7 @@ router.get('/all', listAllUsers);
 router.delete('/user/:id', deleteUser);
 
 // Rota temporária para criar admin
-router.post('/create-admin', async (_req: Request, res: Response): Promise<void> => {
+router.post('/create-admin', async (req, res) => {
   try {
     const adminExists = await User.findOne({ role: 'admin' });
     if (adminExists) {

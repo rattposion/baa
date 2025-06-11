@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 interface JwtPayload {
-  userId: string;
+  id: string;
+  role: 'admin' | 'user';
 }
 
 declare global {
@@ -13,12 +14,13 @@ declare global {
   }
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Token não fornecido' });
+    res.status(401).json({ message: 'Token não fornecido' });
+    return;
   }
 
   try {
@@ -26,6 +28,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Token inválido' });
+    res.status(403).json({ message: 'Token inválido' });
+    return;
   }
 }; 
