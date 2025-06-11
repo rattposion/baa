@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers } from '../controllers/auth';
+import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers, deleteUser } from '../controllers/auth';
 import { protect } from '../middlewares/auth';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
@@ -47,5 +47,8 @@ router.post('/create-admin', async (_req: Request, res: Response): Promise<void>
     res.status(500).json({ message: 'Erro ao criar usuário administrador' });
   }
 });
+
+// Deletar usuário
+router.delete('/:id', deleteUser);
 
 export default router; 
