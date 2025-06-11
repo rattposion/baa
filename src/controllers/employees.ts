@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import Employee from '../models/Employee';
+import User from '../models/User';
+import bcrypt from 'bcryptjs';
 
 // @desc    Obter todos os funcionários
 // @route   GET /api/employees
@@ -36,32 +38,58 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
     throw new Error('Por favor, preencha todos os campos obrigatórios');
   }
 
-  // Verificar se o email já está em uso
+  // Verificar se o email já está em uso em ambas as coleções
   const employeeExists = await Employee.findOne({ email });
-  if (employeeExists) {
+  const userExists = await User.findOne({ email });
+  
+  if (employeeExists || userExists) {
     res.status(400);
     throw new Error('Este email já está em uso');
   }
 
-  const employee = await Employee.create({
-    name,
-    email,
-    password,
-    role: role || 'user',
-    active: true
-  });
+  try {
+    // Hash da senha
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  if (employee) {
-    res.status(201).json({
-      id: employee._id,
-      name: employee.name,
-      email: employee.email,
-      role: employee.role,
-      active: employee.active
+    // Criar o funcionário
+    const employee = await Employee.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'user',
+      active: true
     });
-  } else {
-    res.status(400);
-    throw new Error('Dados de funcionário inválidos');
+
+    // Criar o usuário correspondente
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'user',
+      active: true
+    });
+
+    if (employee && user) {
+      res.status(201).json({
+        id: employee._id,
+        name: employee.name,
+        email: employee.email,
+        role: employee.role,
+        active: employee.active
+      });
+    } else {
+      // Se algo der errado, tentar remover o que foi criado
+      if (employee) await employee.deleteOne();
+      if (user) await user.deleteOne();
+      
+      res.status(400);
+      throw new Error('Erro ao criar funcionário');
+    }
+  } catch (error) {
+    console.error('Erro ao criar funcionário:', error);
+    res.status(500);
+    throw new Error('Erro ao criar funcionário');
   }
 });
 
@@ -70,34 +98,63 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
 // @access  Private/Admin
 export const updateEmployee = asyncHandler(async (req: Request, res: Response) => {
   const employee = await Employee.findById(req.params.id);
+  const user = employee ? await User.findOne({ email: employee.email }) : null;
 
   if (employee) {
     // Se estiver atualizando o email, verificar se já está em uso
     if (req.body.email && req.body.email !== employee.email) {
       const emailExists = await Employee.findOne({ email: req.body.email });
-      if (emailExists) {
+      const userEmailExists = await User.findOne({ email: req.body.email });
+      
+      if (emailExists || userEmailExists) {
         res.status(400);
         throw new Error('Este email já está em uso');
       }
     }
 
-    employee.name = req.body.name || employee.name;
-    employee.email = req.body.email || employee.email;
-    if (req.body.password) {
-      employee.password = req.body.password;
+    try {
+      // Atualizar funcionário
+      employee.name = req.body.name || employee.name;
+      employee.email = req.body.email || employee.email;
+      
+      // Se houver nova senha, fazer o hash
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        employee.password = hashedPassword;
+      }
+      
+      employee.role = req.body.role || employee.role;
+      employee.active = req.body.active !== undefined ? req.body.active : employee.active;
+
+      const updatedEmployee = await employee.save();
+
+      // Atualizar usuário correspondente
+      if (user) {
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        if (req.body.password) {
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(req.body.password, salt);
+          user.password = hashedPassword;
+        }
+        user.role = req.body.role || user.role;
+        user.active = req.body.active !== undefined ? req.body.active : user.active;
+        await user.save();
+      }
+
+      res.json({
+        id: updatedEmployee._id,
+        name: updatedEmployee.name,
+        email: updatedEmployee.email,
+        role: updatedEmployee.role,
+        active: updatedEmployee.active
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar funcionário:', error);
+      res.status(500);
+      throw new Error('Erro ao atualizar funcionário');
     }
-    employee.role = req.body.role || employee.role;
-    employee.active = req.body.active !== undefined ? req.body.active : employee.active;
-
-    const updatedEmployee = await employee.save();
-
-    res.json({
-      id: updatedEmployee._id,
-      name: updatedEmployee.name,
-      email: updatedEmployee.email,
-      role: updatedEmployee.role,
-      active: updatedEmployee.active
-    });
   } else {
     res.status(404);
     throw new Error('Funcionário não encontrado');
@@ -109,9 +166,13 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
 // @access  Private/Admin
 export const deleteEmployee = asyncHandler(async (req: Request, res: Response) => {
   const employee = await Employee.findById(req.params.id);
+  const user = employee ? await User.findOne({ email: employee.email }) : null;
 
   if (employee) {
     await employee.deleteOne();
+    if (user) {
+      await user.deleteOne();
+    }
     res.json({ message: 'Funcionário removido' });
   } else {
     res.status(404);
