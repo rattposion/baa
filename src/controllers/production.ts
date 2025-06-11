@@ -52,6 +52,9 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
   const { employeeId, equipmentId, quantity, date, isReset } = req.body;
   console.log('employeeId recebido:', employeeId);
 
+  // Converter isReset para booleano
+  const isResetBool = isReset === true || isReset === 'true';
+
   // Validar se os IDs são ObjectIds válidos
   if (!mongoose.Types.ObjectId.isValid(employeeId)) {
     res.status(400);
@@ -86,11 +89,11 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     employeeName: employee.name,
     equipmentModel: equipment.get('modelName'),
     timestamp: new Date(),
-    isReset: isReset === true || isReset === 'true',
+    isReset: isResetBool,
   });
 
   // Só movimenta estoque se NÃO for reset
-  if (!isReset) {
+  if (!isResetBool) {
     // Atualiza o estoque do equipamento
     equipment.currentStock = (equipment.currentStock || 0) + quantity;
     await equipment.save();
