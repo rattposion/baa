@@ -2,6 +2,11 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import asyncHandler from 'express-async-handler';
+import { JwtPayload } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // @desc    Registrar usuário
 // @route   POST /api/auth/register
@@ -74,6 +79,7 @@ const login = asyncHandler(async (req: Request, res: Response): Promise<void> =>
 
     try {
       const token = generateToken(user.id, user.role);
+      const refreshToken = generateToken(user.id, user.role, '7d'); // Refresh token com validade de 7 dias
       
       res.json({
         id: user.id,
@@ -81,6 +87,7 @@ const login = asyncHandler(async (req: Request, res: Response): Promise<void> =>
         email: user.email,
         role: user.role,
         token,
+        refreshToken
       });
     } catch (tokenError) {
       console.error('Erro ao gerar token:', tokenError);
@@ -155,7 +162,7 @@ const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // Gerar token JWT
-const generateToken = (id: string, role: string): string => {
+const generateToken = (id: string, role: string, expiresIn: string = '30d'): string => {
   const jwtSecret = process.env.JWT_SECRET;
   
   if (!jwtSecret) {
@@ -165,13 +172,50 @@ const generateToken = (id: string, role: string): string => {
 
   try {
     return jwt.sign({ id, role }, jwtSecret, {
-      expiresIn: '30d',
+      expiresIn,
     });
   } catch (error) {
     console.error('Erro ao assinar token JWT:', error);
     throw new Error('Erro ao gerar token de autenticação');
   }
 };
+
+// @desc    Renovar token JWT
+// @route   POST /api/auth/refresh-token
+// @access  Public
+const refreshToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(400);
+    throw new Error('Refresh token é obrigatório');
+  }
+
+  try {
+    // Verifica o refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!) as JwtPayload;
+    const user = await User.findById(decoded.id).select('-password');
+
+    if (!user) {
+      res.status(401);
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Gera um novo token
+    const token = generateToken(user.id, user.role);
+
+    res.json({
+      token,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    res.status(401);
+    throw new Error('Refresh token inválido');
+  }
+});
 
 export {
   register,
@@ -180,5 +224,6 @@ export {
   listPendingUsers,
   approveUser,
   listAllUsers,
-  deleteUser
+  deleteUser,
+  refreshToken
 }; 

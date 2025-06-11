@@ -1,13 +1,16 @@
 import express, { Request, Response } from 'express';
-import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers, deleteUser } from '../controllers/auth';
+import { register, login, getProfile, listPendingUsers, approveUser, listAllUsers, deleteUser, refreshToken } from '../controllers/auth';
 import { protect } from '../middlewares/auth';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
+import { Router } from 'express';
+import { authenticateToken } from '../middleware/auth';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/refresh-token', refreshToken);
 router.get('/profile', protect, getProfile);
 
 // Listar usuários pendentes
