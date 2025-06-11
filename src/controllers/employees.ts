@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import Employee from '../models/Employee';
 import User from '../models/User';
-import bcrypt from 'bcryptjs';
 
 // @desc    Obter todos os funcionários
 // @route   GET /api/employees
@@ -52,28 +51,22 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
   }
 
   try {
-    // Hash da senha
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    console.log('Senha hasheada com sucesso');
-
-    // Criar o funcionário
+    // NÃO fazer hash manual aqui!
+    // O hash será feito automaticamente pelo pre-save do Mongoose
     const employee = await Employee.create({
       name,
       email,
-      password: hashedPassword,
+      password, // senha em texto puro
       role: role || 'user',
       active: true
     });
 
     console.log('Funcionário criado:', { id: employee._id, name: employee.name, email: employee.email });
 
-    // Criar o usuário correspondente
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password, // senha em texto puro
       role: role || 'user',
       active: true
     });
@@ -81,7 +74,6 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
     console.log('Usuário criado:', { id: user._id, name: user.name, email: user.email });
 
     if (employee && user) {
-      // Verificar se os registros foram realmente salvos
       const savedEmployee = await Employee.findById(employee._id);
       const savedUser = await User.findById(user._id);
 
@@ -102,7 +94,6 @@ export const createEmployee = asyncHandler(async (req: Request, res: Response) =
         active: employee.active
       });
     } else {
-      // Se algo der errado, tentar remover o que foi criado
       if (employee) {
         console.log('Removendo funcionário após erro:', employee._id);
         await employee.deleteOne();
@@ -137,7 +128,6 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
   });
 
   if (employee) {
-    // Se estiver atualizando o email, verificar se já está em uso
     if (req.body.email && req.body.email !== employee.email) {
       const emailExists = await Employee.findOne({ email: req.body.email });
       const userEmailExists = await User.findOne({ email: req.body.email });
@@ -154,31 +144,23 @@ export const updateEmployee = asyncHandler(async (req: Request, res: Response) =
     }
 
     try {
-      // Atualizar funcionário
       employee.name = req.body.name || employee.name;
       employee.email = req.body.email || employee.email;
-      
-      // Se houver nova senha, fazer o hash
+      // NÃO fazer hash manual aqui!
       if (req.body.password) {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req.body.password, salt);
-        employee.password = hashedPassword;
+        employee.password = req.body.password; // senha em texto puro
       }
-      
       employee.role = req.body.role || employee.role;
       employee.active = req.body.active !== undefined ? req.body.active : employee.active;
 
       const updatedEmployee = await employee.save();
       console.log('Funcionário atualizado:', { id: updatedEmployee._id, name: updatedEmployee.name });
 
-      // Atualizar usuário correspondente
       if (user) {
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
         if (req.body.password) {
-          const salt = await bcrypt.genSalt(10);
-          const hashedPassword = await bcrypt.hash(req.body.password, salt);
-          user.password = hashedPassword;
+          user.password = req.body.password; // senha em texto puro
         }
         user.role = req.body.role || user.role;
         user.active = req.body.active !== undefined ? req.body.active : user.active;
