@@ -3,10 +3,6 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import asyncHandler from 'express-async-handler';
 import { JwtPayload } from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 // @desc    Registrar usuário
 // @route   POST /api/auth/register
@@ -171,9 +167,11 @@ const generateToken = (id: string, role: string, expiresIn: string = '30d'): str
   }
 
   try {
-    return jwt.sign({ id, role }, jwtSecret, {
-      expiresIn,
-    });
+    return jwt.sign(
+      { id, role },
+      jwtSecret,
+      { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] }
+    );
   } catch (error) {
     console.error('Erro ao assinar token JWT:', error);
     throw new Error('Erro ao gerar token de autenticação');

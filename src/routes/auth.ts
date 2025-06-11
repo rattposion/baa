@@ -23,7 +23,7 @@ router.get('/all', listAllUsers);
 router.delete('/user/:id', deleteUser);
 
 // Rota temporária para criar admin
-router.post('/create-admin', async (req, res) => {
+router.post('/create-admin', async (_req, res) => {
   try {
     const adminExists = await User.findOne({ role: 'admin' });
     if (adminExists) {

@@ -1,32 +1,29 @@
-# Backend do Sistema de Gestão de Produção
+# Backend da Aplicação de Gestão de Produção
 
-Este é o backend do sistema de gestão de produção, desenvolvido com Node.js, Express, TypeScript e MongoDB.
+Este é o backend da aplicação de gestão de produção, construído com Node.js, TypeScript, Express e MongoDB.
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js >= 18.0.0
 - MongoDB
-- NPM ou Yarn
+- npm ou yarn
 
-## Configuração
+## Configuração do Ambiente
 
 1. Clone o repositório
 2. Instale as dependências:
-```bash
-npm install
-```
-
-3. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/mix_production
-JWT_SECRET=your_jwt_secret_here
-NODE_ENV=development
-```
+   ```bash
+   npm install
+   ```
+3. Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente:
+   ```bash
+   cp .env.example .env
+   ```
+4. Configure as variáveis de ambiente no arquivo `.env`
 
 ## Desenvolvimento
 
-Para rodar o servidor em modo de desenvolvimento:
+Para iniciar o servidor em modo de desenvolvimento:
 
 ```bash
 npm run dev
@@ -34,19 +31,62 @@ npm run dev
 
 ## Build
 
-Para gerar o build de produção:
+Para criar a build de produção:
 
 ```bash
 npm run build
 ```
 
-## Produção
+## Testes
 
-Para rodar o servidor em produção:
+Para executar os testes:
 
 ```bash
-npm start
+npm test
 ```
+
+## Deploy no Railway
+
+1. Crie uma conta no [Railway](https://railway.app)
+2. Crie um novo projeto
+3. Conecte seu repositório GitHub
+4. Configure as variáveis de ambiente no Railway:
+   - `PORT`: 3001
+   - `NODE_ENV`: production
+   - `MONGODB_URI`: sua URI do MongoDB
+   - `JWT_SECRET`: sua chave secreta
+   - `JWT_EXPIRES_IN`: 30d
+   - `REFRESH_TOKEN_EXPIRES_IN`: 7d
+   - `CORS_ORIGIN`: URL do seu frontend
+   - `LOG_LEVEL`: info
+
+5. O Railway detectará automaticamente o `Procfile` e iniciará a aplicação
+
+## Scripts Disponíveis
+
+- `npm start`: Inicia o servidor em produção
+- `npm run dev`: Inicia o servidor em modo de desenvolvimento
+- `npm run build`: Cria a build de produção
+- `npm test`: Executa os testes
+- `npm run lint`: Executa o linter
+- `npm run format`: Formata o código
+
+## Estrutura do Projeto
+
+```
+src/
+  ├── controllers/    # Controladores da aplicação
+  ├── middleware/     # Middlewares
+  ├── models/         # Modelos do MongoDB
+  ├── routes/         # Rotas da API
+  ├── services/       # Serviços
+  ├── utils/          # Utilitários
+  └── server.ts       # Arquivo principal
+```
+
+## Licença
+
+ISC
 
 ## API Endpoints
 
@@ -82,17 +122,6 @@ npm start
 - POST `/api/movements` - Criar movimentação (requer autenticação)
 - PUT `/api/movements/:id` - Atualizar movimentação (requer admin)
 - DELETE `/api/movements/:id` - Excluir movimentação (requer admin)
-
-## Deploy no Railway
-
-1. Crie uma conta no Railway (https://railway.app)
-2. Conecte seu repositório GitHub
-3. Configure as variáveis de ambiente no Railway:
-   - `PORT`
-   - `MONGODB_URI`
-   - `JWT_SECRET`
-   - `NODE_ENV=production`
-4. O Railway irá detectar automaticamente o `package.json` e executar os scripts necessários
 
 ## Segurança
 
