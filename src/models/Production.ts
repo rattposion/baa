@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IProduction, ProductionSchemaType } from '../types';
+import { ProductionSchemaType } from '../types';
 
 const productionSchema = new mongoose.Schema<ProductionSchemaType>(
   {
