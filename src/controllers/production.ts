@@ -14,9 +14,24 @@ export const getProduction = asyncHandler(async (req: Request, res: Response): P
   let query: any = {};
   
   if (startDate && endDate) {
-    query.date = { $gte: startDate, $lte: endDate };
+    // Converte as strings de data para objetos Date para consulta no campo timestamp
+    const startOfDay = new Date(startDate as string);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(endDate as string);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    query.timestamp = { $gte: startOfDay, $lte: endOfDay };
+  } else if (startDate) {
+    // Se apenas startDate for fornecido, considera o dia inteiro
+    const startOfDay = new Date(startDate as string);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startDate as string);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+    query.timestamp = { $gte: startOfDay, $lte: endOfDay };
   }
-  
+
   if (employeeId) {
     query.employeeId = employeeId;
   }
@@ -25,9 +40,13 @@ export const getProduction = asyncHandler(async (req: Request, res: Response): P
     query.equipmentId = equipmentId;
   }
 
+  console.log('Query para MongoDB:', query);
+
   const production = await Production.find(query)
     .sort({ timestamp: -1 });
   
+  console.log('Resultados da produção do MongoDB:', production);
+
   res.json(production);
 });
 
