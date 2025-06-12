@@ -22,7 +22,6 @@ export const getProduction = asyncHandler(async (req: Request, res: Response): P
     endOfDay.setUTCHours(23, 59, 59, 999);
 
     query.timestamp = { $gte: startOfDay, $lte: endOfDay };
-    query.date = { $gte: startDate, $lte: endDate };
   } else if (startDate) {
     // Se apenas startDate for fornecido, considera o dia inteiro
     const startOfDay = new Date(startDate as string);
@@ -32,7 +31,6 @@ export const getProduction = asyncHandler(async (req: Request, res: Response): P
     endOfDay.setUTCHours(23, 59, 59, 999);
     
     query.timestamp = { $gte: startOfDay, $lte: endOfDay };
-    query.date = startDate;
   }
 
   if (employeeId) {
