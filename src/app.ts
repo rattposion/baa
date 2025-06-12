@@ -16,7 +16,7 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: ['https://decore-gray.vercel.app', 'null', 'file://', 'http://localhost:5173', 'http://localhost:8000'],
+  origin: ['https://decore-alpha.vercel.app', 'null', 'file://', 'http://localhost:5173', 'http://localhost:8000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
