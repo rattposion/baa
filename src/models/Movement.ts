@@ -40,7 +40,7 @@ const movementSchema = new mongoose.Schema<IMovement>(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (_, ret) {
+      transform: function (_: any, ret: any) {
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
