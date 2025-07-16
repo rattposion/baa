@@ -4,24 +4,22 @@ import {
   getEmployeeById,
   createEmployee,
   updateEmployee,
-  deleteEmployee
-} from '../controllers/employeeController';
-import { authenticate } from '../middleware/authMiddleware';
-import { isAdmin } from '../middleware/adminMiddleware';
+  deleteEmployee,
+} from '../controllers/employees';
+import { protect, admin } from '../middlewares/auth';
 
 const router = express.Router();
 
-// Rotas protegidas que requerem autenticação
-router.use(authenticate);
+// Rotas que requerem apenas autenticação
+router.route('/')
+  .get(protect, getEmployees);
 
-// Rotas que requerem autenticação mas não requerem admin
-router.get('/', getEmployees);
-router.get('/:id', getEmployeeById);
+router.route('/:id')
+  .get(protect, getEmployeeById);
 
-// Rotas que requerem autenticação E admin
-router.use(isAdmin);
-router.post('/', createEmployee);
-router.put('/:id', updateEmployee);
-router.delete('/:id', deleteEmployee);
+// Rotas que requerem permissão de admin
+router.post('/', protect, admin, createEmployee);
+router.put('/:id', protect, admin, updateEmployee);
+router.delete('/:id', protect, admin, deleteEmployee);
 
 export default router; 

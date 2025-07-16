@@ -6,17 +6,17 @@ import {
   updateProduction,
   deleteProduction,
 } from '../controllers/production';
-import { authenticateToken } from '../middleware/auth';
+import { protect } from '../middlewares/auth';
 
 const router = Router();
 
 router.route('/')
-  .get(authenticateToken, getProduction)
-  .post(authenticateToken, createProduction);
+  .get(protect, getProduction)
+  .post(protect, createProduction);
 
 router.route('/:id')
-  .get(authenticateToken, getProductionById)
-  .put(authenticateToken, updateProduction)
-  .delete(authenticateToken, deleteProduction);
+  .get(protect, getProductionById)
+  .put(protect, updateProduction)
+  .delete(protect, deleteProduction);
 
 export default router; 
