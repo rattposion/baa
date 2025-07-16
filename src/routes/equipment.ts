@@ -1,25 +1,28 @@
 import express from 'express';
 import {
-  getEquipment,
-  getEquipmentById,
+  getEquipments,
   createEquipment,
   updateEquipment,
   deleteEquipment,
-} from '../controllers/equipment';
-import { protect, admin } from '../middlewares/auth';
+  getEquipmentById,
+  getResetedEquipments
+} from '../controllers/equipmentController';
+import { authenticate } from '../middleware/authMiddleware';
+import { isAdmin } from '../middleware/adminMiddleware';
 
 const router = express.Router();
 
-// Rotas que requerem apenas autenticação
-router.route('/')
-  .get(protect, getEquipment);
+// Todas as rotas requerem autenticação
+router.use(authenticate);
 
-router.route('/:id')
-  .get(protect, getEquipmentById);
+// Rotas públicas (requerem apenas autenticação)
+router.get('/', getEquipments);
+router.get('/:id', getEquipmentById);
+router.get('/reseted', getResetedEquipments);
 
 // Rotas que requerem permissão de admin
-router.post('/', protect, admin, createEquipment);
-router.put('/:id', protect, admin, updateEquipment);
-router.delete('/:id', protect, admin, deleteEquipment);
+router.post('/', isAdmin, createEquipment);
+router.put('/:id', isAdmin, updateEquipment);
+router.delete('/:id', isAdmin, deleteEquipment);
 
 export default router; 

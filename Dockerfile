@@ -24,7 +24,7 @@ COPY . .
 # Limpar a pasta dist se existir e compilar
 RUN npm run clean || true && \
     npm run build && \
-    test -d dist && test -f dist/server.js
+    test -d dist && test -f dist/index.js
 
 # Remover dependências de desenvolvimento e arquivos fonte
 RUN npm prune --production \

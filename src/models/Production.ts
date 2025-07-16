@@ -44,9 +44,9 @@ const productionSchema = new mongoose.Schema<ProductionSchemaType>(
     toJSON: {
       virtuals: true,
       transform: function (_, ret) {
-        (ret as any).id = ret._id;
-        delete (ret as any)._id;
-        delete (ret as any).__v;
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
         return ret;
       },
     },

@@ -7,17 +7,7 @@ import Equipment from '../models/Equipment';
 // @access  Private
 export const getEquipment = asyncHandler(async (_req: Request, res: Response) => {
   const equipment = await Equipment.find().sort({ modelName: 1 });
-  console.log('Equipamentos encontrados no banco (raw):', equipment);
-  
-  // Aplicar transform manualmente para garantir que os IDs sejam incluídos
-  const equipmentWithId = equipment.map(eq => {
-    const json = eq.toJSON();
-    console.log('Equipamento após toJSON:', json);
-    return json;
-  });
-  
-  console.log('Equipamentos com ID:', equipmentWithId);
-  res.json(equipmentWithId);
+  res.json(equipment);
 });
 
 // @desc    Obter um equipamento específico
