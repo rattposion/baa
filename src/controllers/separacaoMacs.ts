@@ -114,7 +114,7 @@ const deleteSeparacao = asyncHandler(async (req: Request, res: Response) => {
 // @desc    Buscar todas as separações
 // @route   GET /api/separacao-macs/all
 // @access  Private
-const getAllSeparacoes = asyncHandler(async (req: Request, res: Response) => {
+const getAllSeparacoes = asyncHandler(async (_req: Request, res: Response) => {
   const separacoes = await SeparacaoMac.find()
     .sort({ createdAt: -1 })
     .limit(100);

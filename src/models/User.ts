@@ -53,10 +53,10 @@ const userSchema = new mongoose.Schema<IUserDocument, UserModel, IUserMethods>(
     toJSON: {
       virtuals: true,
       transform: function (_, ret) {
-        ret.id = ret._id;
-        delete ret._id;
-        delete ret.__v;
-        delete ret.password;
+        (ret as any).id = ret._id;
+        delete (ret as any)._id;
+        delete (ret as any).__v;
+        delete (ret as any).password;
         return ret;
       },
     },
