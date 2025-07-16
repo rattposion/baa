@@ -7,6 +7,15 @@ import Equipment from '../models/Equipment';
 // @access  Private
 export const getEquipment = asyncHandler(async (_req: Request, res: Response) => {
   const equipment = await Equipment.find().sort({ modelName: 1 });
+  console.log('Equipamentos encontrados no banco (raw):', equipment);
+  
+  // Testar o toJSON manualmente para o primeiro equipamento
+  if (equipment.length > 0) {
+    const firstEquipment = equipment[0];
+    console.log('Primeiro equipamento (raw):', firstEquipment);
+    console.log('Primeiro equipamento (toJSON):', firstEquipment.toJSON());
+  }
+  
   res.json(equipment);
 });
 

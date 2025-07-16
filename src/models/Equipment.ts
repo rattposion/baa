@@ -1,12 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IEquipment {
+  id?: string;
   modelName: string;
   currentStock: number;
   totalResets: number;
 }
 
 export interface IEquipmentDocument extends Document {
+  id?: string;
   modelName: string;
   currentStock: number;
   totalResets: number;
@@ -32,7 +34,16 @@ const equipmentSchema = new Schema({
     default: 0
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    },
+  },
 });
 
 // Remove o índice serialNumber_1 se ele existir
