@@ -9,6 +9,7 @@ import productionRoutes from './routes/production';
 import movementRoutes from './routes/movements';
 import healthRoutes from './routes/health';
 import employeeRoutes from './routes/employeeRoutes';
+import separacaoMacsRoutes from './routes/separacaoMacs';
 
 config();
 
@@ -31,6 +32,7 @@ app.use('/api/equipment', equipmentRoutes);
 app.use('/api/production', productionRoutes);
 app.use('/api/movements', movementRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/separacao-macs', separacaoMacsRoutes);
 
 // Middleware de erro
 app.use(errorHandler);
