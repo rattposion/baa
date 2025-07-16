@@ -9,14 +9,15 @@ export const getEquipment = asyncHandler(async (_req: Request, res: Response) =>
   const equipment = await Equipment.find().sort({ modelName: 1 });
   console.log('Equipamentos encontrados no banco (raw):', equipment);
   
-  // Testar o toJSON manualmente para o primeiro equipamento
-  if (equipment.length > 0) {
-    const firstEquipment = equipment[0];
-    console.log('Primeiro equipamento (raw):', firstEquipment);
-    console.log('Primeiro equipamento (toJSON):', firstEquipment.toJSON());
-  }
+  // Aplicar transform manualmente para garantir que os IDs sejam incluídos
+  const equipmentWithId = equipment.map(eq => {
+    const json = eq.toJSON();
+    console.log('Equipamento após toJSON:', json);
+    return json;
+  });
   
-  res.json(equipment);
+  console.log('Equipamentos com ID:', equipmentWithId);
+  res.json(equipmentWithId);
 });
 
 // @desc    Obter um equipamento específico
