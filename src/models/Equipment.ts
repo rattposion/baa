@@ -32,7 +32,16 @@ const equipmentSchema = new Schema({
     default: 0
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: function (_: any, ret: any) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    },
+  },
 });
 
 // Remove o índice serialNumber_1 se ele existir

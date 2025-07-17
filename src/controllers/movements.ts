@@ -51,11 +51,14 @@ export const createMovement = asyncHandler(async (req: Request, res: Response): 
   const { equipmentId, quantity, type, description, date } = req.body;
 
   // Verificar se o equipamento existe
+  console.log(`Buscando equipamento com ID: ${equipmentId}`);
   const equipment = await Equipment.findById(equipmentId);
   if (!equipment) {
     res.status(404);
     throw new Error('Equipamento não encontrado');
   }
+  
+  console.log(`Equipamento encontrado: ${equipment.modelName}, estoque atual: ${equipment.currentStock}`);
 
   const movement = await Movement.create({
     equipmentId,
@@ -66,6 +69,28 @@ export const createMovement = asyncHandler(async (req: Request, res: Response): 
     equipmentName: equipment.get('modelName'),
     timestamp: new Date(),
   });
+
+  // Atualiza automaticamente o estoque do equipamento
+  console.log(`Estoque antes da atualização: ${equipment.modelName} = ${equipment.currentStock}`);
+  
+  const newStock = type === 'entrada' 
+    ? equipment.currentStock + quantity 
+    : equipment.currentStock - quantity;
+  
+  console.log(`Cálculo: ${equipment.currentStock} ${type === 'entrada' ? '+' : '-'} ${quantity} = ${newStock}`);
+  
+  // Usar updateOne para garantir que a atualização seja persistida
+  const updateResult = await Equipment.updateOne(
+    { _id: equipmentId },
+    { $set: { currentStock: newStock } }
+  );
+  
+  console.log(`Resultado da atualização: ${updateResult.modifiedCount} documentos modificados`);
+  
+  // Buscar o equipamento atualizado
+  const updatedEquipment = await Equipment.findById(equipmentId);
+  console.log(`Estoque após atualização: ${updatedEquipment?.modelName} = ${updatedEquipment?.currentStock}`);
+  console.log(`Movimentação criada com ID: ${movement._id}`);
 
   res.status(201).json(movement);
 });
