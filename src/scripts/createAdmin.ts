@@ -23,7 +23,7 @@ const createAdmin = async () => {
     const password = await bcrypt.hash('admin123', salt);
 
     // Criar usuário admin
-    const admin = await User.create({
+    await User.create({
       name: 'Administrador',
       email: 'admin@mix.com',
       password,

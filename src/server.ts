@@ -23,7 +23,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://decore-eight.vercel.app'
+  'https://decore-alpha.vercel.app'
 ];
 
 if (process.env.CORS_ORIGIN) {
@@ -77,7 +77,7 @@ app.use(errorHandler);
 // Conexão com o MongoDB
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mix');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mix');
   
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
