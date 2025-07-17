@@ -9,12 +9,12 @@ const createAdmin = async () => {
   try {
     // Conectar ao MongoDB
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mix_production');
-    console.log('Conectado ao MongoDB');
+  
 
     // Verificar se já existe um admin
     const adminExists = await User.findOne({ role: 'admin' });
     if (adminExists) {
-      console.log('Já existe um usuário administrador');
+  
       process.exit(0);
     }
 
@@ -31,9 +31,7 @@ const createAdmin = async () => {
       active: true,
     });
 
-    console.log('Usuário administrador criado com sucesso:');
-    console.log('Email:', admin.email);
-    console.log('Senha: admin123');
+
 
     process.exit(0);
   } catch (error) {

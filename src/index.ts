@@ -20,10 +20,10 @@ const mongooseOptions = {
 const connectWithRetry = async () => {
   try {
     await mongoose.connect(MONGODB_URI, mongooseOptions);
-    console.log('Conectado ao MongoDB');
+
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
-    console.log('Tentando reconectar em 5 segundos...');
+    
     setTimeout(connectWithRetry, 5000);
   }
 };
@@ -31,7 +31,7 @@ const connectWithRetry = async () => {
 // Iniciar o servidor apenas após conectar ao MongoDB
 const startServer = () => {
   const server = app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+
   });
 
   // Tratamento de erros do servidor
@@ -56,11 +56,9 @@ const startServer = () => {
 
   // Tratamento de sinais de término
   const gracefulShutdown = () => {
-    console.log('Recebido sinal de término. Iniciando shutdown gracioso...');
+
     server.close(async () => {
-      console.log('Servidor HTTP fechado.');
-      await mongoose.connection.close();
-      console.log('Conexão MongoDB fechada.');
+              await mongoose.connection.close();
       process.exit(0);
     });
 
@@ -77,7 +75,7 @@ const startServer = () => {
 
 // Eventos de conexão do MongoDB
 mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB desconectado. Tentando reconectar...');
+  
   setTimeout(connectWithRetry, 5000);
 });
 

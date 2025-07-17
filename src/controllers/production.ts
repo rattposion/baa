@@ -41,12 +41,8 @@ export const getProduction = asyncHandler(async (req: Request, res: Response): P
     query.equipmentId = equipmentId;
   }
 
-  console.log('Query para MongoDB:', query);
-
   const production = await Production.find(query)
     .sort({ timestamp: -1 });
-  
-  console.log('Resultados da produção do MongoDB:', production);
 
   res.json(production);
 });
@@ -70,34 +66,25 @@ export const getProductionById = asyncHandler(async (req: Request, res: Response
 // @access  Private
 export const createProduction = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { employeeId, equipmentId, quantity, date, isReset } = req.body;
-  console.log('=== DEBUG CREATE PRODUCTION ===');
-  console.log('Body recebido:', req.body);
-  console.log('employeeId recebido:', employeeId);
-  console.log('equipmentId recebido:', equipmentId);
-  console.log('Tipo do equipmentId:', typeof equipmentId);
+
 
   // Converter isReset para booleano
   const isResetBool = isReset === true || isReset === 'true';
 
   // Validar se os IDs são ObjectIds válidos
   if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-    console.log('❌ ID do funcionário inválido:', employeeId);
     res.status(400);
     throw new Error('ID do funcionário inválido');
   }
 
   if (!mongoose.Types.ObjectId.isValid(equipmentId)) {
-    console.log('❌ ID do equipamento inválido:', equipmentId);
     res.status(400);
     throw new Error('ID do equipamento inválido');
   }
 
-  console.log('✅ IDs válidos - prosseguindo...');
-
   // Verificar se o funcionário existe
   const employee = await User.findById(employeeId);
   if (!employee) {
-    console.log('❌ Funcionário não encontrado:', employeeId);
     res.status(404);
     throw new Error('Funcionário não encontrado');
   }
@@ -105,14 +92,9 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
   // Verificar se o equipamento existe
   const equipment = await Equipment.findById(equipmentId);
   if (!equipment) {
-    console.log('❌ Equipamento não encontrado:', equipmentId);
     res.status(404);
     throw new Error('Equipamento não encontrado');
   }
-
-  console.log('✅ Funcionário e equipamento encontrados');
-  console.log('Funcionário:', employee.name);
-  console.log('Equipamento:', equipment.modelName);
 
   // Cria o registro de produção
   const production = await Production.create({

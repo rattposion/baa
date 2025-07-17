@@ -53,7 +53,6 @@ mongoose.connection.on('connected', async () => {
     
     if (hasSerialNumberIndex) {
       await collection.dropIndex('serialNumber_1');
-      console.log('Índice serialNumber_1 removido com sucesso');
     }
   } catch (error) {
     console.error('Erro ao remover índice:', error);

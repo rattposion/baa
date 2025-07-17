@@ -64,13 +64,6 @@ const userSchema = new mongoose.Schema<IUserDocument, UserModel, IUserMethods>(
 );
 
 userSchema.pre('save', async function (next) {
-  console.log('Tentando salvar usuário:', {
-    name: this.name,
-    email: this.email,
-    role: this.role,
-    isModified: this.isModified('password')
-  });
-
   if (!this.isModified('password')) {
     return next();
   }
@@ -78,21 +71,13 @@ userSchema.pre('save', async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    console.log('Senha hasheada com sucesso para usuário:', this.email);
     next();
   } catch (error) {
-    console.error('Erro ao hashear senha:', error);
     next(error);
   }
 });
 
-userSchema.post('save', function(doc) {
-  console.log('Usuário salvo com sucesso:', {
-    id: doc._id,
-    name: doc.name,
-    email: doc.email
-  });
-});
+
 
 userSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
   if (!enteredPassword) {
@@ -111,7 +96,6 @@ userSchema.methods.matchPassword = async function (enteredPassword: string): Pro
     }
 
     const isMatch = await bcrypt.compare(enteredPassword, user.password);
-    console.log('Comparação de senha:', { userId: user._id, isMatch });
     return isMatch;
   } catch (error) {
     console.error('Erro ao comparar senha:', error);
