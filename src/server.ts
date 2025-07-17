@@ -23,7 +23,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://decore-alpha.vercel.app'
+  'https://decore-eight.vercel.app'
 ];
 
 if (process.env.CORS_ORIGIN) {
