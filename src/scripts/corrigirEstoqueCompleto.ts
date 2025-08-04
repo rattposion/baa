@@ -58,7 +58,7 @@ const corrigirEstoqueCompleto = async (): Promise<void> => {
     let semAlteracao = 0;
 
     for (const equipment of equipments) {
-      const calculatedStock = equipmentStock[equipment._id.toString()];
+      const calculatedStock = equipmentStock[(equipment._id as any).toString()];
       
       if (calculatedStock) {
         const oldCurrentStock = equipment.currentStock;
