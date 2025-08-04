@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import Production from '../models/Production';
 import Equipment from '../models/Equipment';
 import User from '../models/User';
