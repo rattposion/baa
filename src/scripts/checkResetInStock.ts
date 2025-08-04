@@ -16,6 +16,13 @@ interface ProductionRecord {
   employeeName: string;
 }
 
+interface EquipmentRecord {
+  _id: any;
+  modelName: string;
+  currentStock: number;
+  totalResets: number;
+}
+
 const checkResetInStock = async (): Promise<void> => {
   try {
     // Conectar ao MongoDB
