@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import Production from '../models/Production';
 import User from '../models/User';
 import Equipment from '../models/Equipment';
+import Movement from '../models/Movement';
 
 // @desc    Obter todos os registros de produção
 // @route   GET /api/production
@@ -134,12 +135,23 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
       isReset: isResetBool,
     });
   } catch (error: any) {
+    console.error('Erro ao criar produção:', error);
+    
     // Verificar se é um erro de duplicação
     if (error.code === 11000) {
       res.status(400);
       throw new Error('Já existe um registro de produção para este funcionário, equipamento e data');
     }
-    throw error;
+    
+    // Verificar se é um erro de validação
+    if (error.name === 'ValidationError') {
+      res.status(400);
+      throw new Error(`Erro de validação: ${error.message}`);
+    }
+    
+    // Erro genérico
+    res.status(500);
+    throw new Error('Erro interno ao criar registro de produção');
   }
 
   // Se for reset, incrementa o campo totalResets do equipamento
@@ -155,7 +167,6 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     await equipment.save();
 
     // Cria o registro de movimentação
-    const Movement = require('../models/Movement').default;
     await Movement.create({
       equipmentId,
       equipmentName: equipment.get('modelName'),
