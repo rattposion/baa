@@ -18,7 +18,9 @@
     "check-reset-status": "ts-node src/scripts/checkResetStatus.ts",
     "test-production-api": "ts-node src/scripts/testProductionAPI.ts",
     "check-reset-in-stock": "ts-node src/scripts/checkResetInStock.ts",
-    "corrigir-estoque": "ts-node src/scripts/corrigirEstoqueCompleto.ts"
+    "corrigir-estoque": "ts-node src/scripts/corrigirEstoqueCompleto.ts",
+    "migrar-reset-stock": "ts-node src/scripts/migrarResetStock.ts",
+    "verificar-reset-stock": "ts-node src/scripts/verificarResetStock.ts"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -154,8 +154,9 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     throw new Error('Erro interno ao criar registro de produção');
   }
 
-  // Se for reset, incrementa o campo totalResets do equipamento
+  // Se for reset, incrementa o campo resetStock do equipamento
   if (isResetBool) {
+    equipment.resetStock = (equipment.resetStock || 0) + quantity;
     equipment.totalResets = (equipment.totalResets || 0) + quantity;
     await equipment.save();
   }
@@ -243,12 +244,13 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
     const equipment = await Equipment.findById(production.get('equipmentId'));
     if (equipment) {
       if (isReset) {
-        // Se for reset, ajusta apenas o totalResets
+        // Se for reset, ajusta o resetStock e totalResets
         const quantityDifference = newQuantity - oldQuantity;
+        equipment.resetStock = (equipment.resetStock || 0) + quantityDifference;
         equipment.totalResets = (equipment.totalResets || 0) + quantityDifference;
         await equipment.save();
       } else {
-        // Se não for reset, ajusta o currentStock
+        // Se não for reset, ajusta apenas o currentStock
         const quantityDifference = newQuantity - oldQuantity;
         equipment.currentStock = (equipment.currentStock || 0) + quantityDifference;
         await equipment.save();
@@ -284,11 +286,12 @@ export const deleteProduction = asyncHandler(async (req: Request, res: Response)
     const quantity = production.get('quantity');
     
     if (isReset) {
-      // Se for reset, diminui o totalResets
+      // Se for reset, diminui o resetStock e totalResets
+      equipment.resetStock = Math.max(0, (equipment.resetStock || 0) - quantity);
       equipment.totalResets = Math.max(0, (equipment.totalResets || 0) - quantity);
       await equipment.save();
     } else {
-      // Se não for reset, diminui o currentStock
+      // Se não for reset, diminui apenas o currentStock
       equipment.currentStock = Math.max(0, (equipment.currentStock || 0) - quantity);
       await equipment.save();
     }

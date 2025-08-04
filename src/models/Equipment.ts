@@ -4,12 +4,14 @@ export interface IEquipment {
   modelName: string;
   currentStock: number;
   totalResets: number;
+  resetStock: number;
 }
 
 export interface IEquipmentDocument extends Document {
   modelName: string;
   currentStock: number;
   totalResets: number;
+  resetStock: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +29,11 @@ const equipmentSchema = new Schema({
     default: 0
   },
   totalResets: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  resetStock: {
     type: Number,
     required: true,
     default: 0
