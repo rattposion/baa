@@ -67,6 +67,17 @@ export const getProductionById = asyncHandler(async (req: Request, res: Response
 export const createProduction = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { employeeId, equipmentId, quantity, date, isReset } = req.body;
 
+  // Validar campos obrigatórios
+  if (!employeeId || !equipmentId || !quantity || !date) {
+    res.status(400);
+    throw new Error('Todos os campos são obrigatórios: employeeId, equipmentId, quantity, date');
+  }
+
+  // Validar se quantity é um número válido
+  if (isNaN(Number(quantity)) || Number(quantity) <= 0) {
+    res.status(400);
+    throw new Error('Quantidade deve ser um número maior que zero');
+  }
 
   // Converter isReset para booleano
   const isResetBool = isReset === true || isReset === 'true';
@@ -96,17 +107,40 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
     throw new Error('Equipamento não encontrado');
   }
 
-  // Cria o registro de produção
-  const production = await Production.create({
+  // Verificar se já existe um registro de produção para o mesmo funcionário, equipamento e data
+  const existingProduction = await Production.findOne({
     employeeId,
     equipmentId,
-    quantity,
     date,
-    employeeName: employee.name,
-    equipmentModel: equipment.get('modelName'),
-    timestamp: new Date(),
-    isReset: isResetBool,
+    isReset: isResetBool
   });
+
+  if (existingProduction) {
+    res.status(400);
+    throw new Error('Já existe um registro de produção para este funcionário, equipamento e data');
+  }
+
+  // Cria o registro de produção
+  let production;
+  try {
+    production = await Production.create({
+      employeeId,
+      equipmentId,
+      quantity,
+      date,
+      employeeName: employee.name,
+      equipmentModel: equipment.get('modelName'),
+      timestamp: new Date(),
+      isReset: isResetBool,
+    });
+  } catch (error: any) {
+    // Verificar se é um erro de duplicação
+    if (error.code === 11000) {
+      res.status(400);
+      throw new Error('Já existe um registro de produção para este funcionário, equipamento e data');
+    }
+    throw error;
+  }
 
   // Se for reset, incrementa o campo totalResets do equipamento
   if (isResetBool) {

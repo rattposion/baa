@@ -11,7 +11,9 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "create-admin": "ts-node src/scripts/createAdmin.ts",
+    "create-production-index": "ts-node src/scripts/createProductionIndex.ts"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -53,4 +53,10 @@ const productionSchema = new mongoose.Schema<ProductionSchemaType>(
   }
 );
 
+// Índice único para evitar duplicações de produção no mesmo dia
+productionSchema.index(
+  { employeeId: 1, equipmentId: 1, date: 1, isReset: 1 },
+  { unique: true, name: 'unique_production_per_day' }
+);
+
 export default mongoose.model('Production', productionSchema); 
