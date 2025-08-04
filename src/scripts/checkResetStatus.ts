@@ -30,7 +30,7 @@ const checkResetStatus = async (): Promise<void> => {
     console.log('Conectado ao MongoDB');
 
     // Buscar todos os registros de produção
-    const productions = await Production.find({}).lean() as ProductionRecord[];
+    const productions = await Production.find({}).lean() as unknown as ProductionRecord[];
     
     // Separar registros de reset e produção normal
     const resetRecords = productions.filter(p => p.isReset);
@@ -58,7 +58,7 @@ const checkResetStatus = async (): Promise<void> => {
     }
     
     // Verificar estoque atual dos equipamentos
-    const equipments = await Equipment.find({}).lean() as EquipmentRecord[];
+    const equipments = await Equipment.find({}).lean() as unknown as EquipmentRecord[];
     console.log(`\n=== ESTOQUE ATUAL DOS EQUIPAMENTOS ===`);
     equipments.forEach((equipment: EquipmentRecord) => {
       console.log(`${equipment.modelName}:`);
