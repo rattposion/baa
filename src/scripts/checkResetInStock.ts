@@ -16,12 +16,7 @@ interface ProductionRecord {
   employeeName: string;
 }
 
-interface EquipmentRecord {
-  _id: any;
-  modelName: string;
-  currentStock: number;
-  totalResets: number;
-}
+
 
 const checkResetInStock = async (): Promise<void> => {
   try {
@@ -42,7 +37,7 @@ const checkResetInStock = async (): Promise<void> => {
     console.log(`Registros de Produção Normal: ${normalRecords.length}`);
 
     // Verificar estoque atual dos equipamentos
-    const equipments = await Equipment.find({});
+    const equipments = await Equipment.find({}).lean();
     console.log(`\n=== ESTOQUE ATUAL DOS EQUIPAMENTOS ===`);
     equipments.forEach(equipment => {
       console.log(`${equipment.modelName}:`);
@@ -69,7 +64,7 @@ const checkResetInStock = async (): Promise<void> => {
 
     console.log(`\n=== ESTOQUE CALCULADO BASEADO NOS REGISTROS ===`);
     for (const [equipmentId, stock] of Object.entries(equipmentStock)) {
-      const equipment = equipments.find(e => e._id.toString() === equipmentId);
+      const equipment = equipments.find((e: any) => e._id.toString() === equipmentId);
       if (equipment) {
         console.log(`${equipment.modelName}:`);
         console.log(`  - CurrentStock Calculado: ${stock.currentStock}`);
