@@ -3,11 +3,27 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 
-const createProductionIndex = async () => {
+interface DuplicateRecord {
+  _id: {
+    employeeId: string;
+    equipmentId: string;
+    date: string;
+    isReset: boolean;
+  };
+  count: number;
+  docs: string[];
+}
+
+const createProductionIndex = async (): Promise<void> => {
   try {
     // Conectar ao MongoDB
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mix_production');
     console.log('Conectado ao MongoDB');
+
+    // Verificar se a conexão está estabelecida
+    if (!mongoose.connection.db) {
+      throw new Error('Conexão com o banco de dados não foi estabelecida');
+    }
 
     // Obter a coleção de produção
     const db = mongoose.connection.db;
@@ -40,11 +56,11 @@ const createProductionIndex = async () => {
           count: { $gt: 1 }
         }
       }
-    ]).toArray();
+    ]).toArray() as DuplicateRecord[];
 
     if (duplicates.length > 0) {
       console.log(`Encontradas ${duplicates.length} duplicações de produção:`);
-      duplicates.forEach((dup, index) => {
+      duplicates.forEach((dup: DuplicateRecord, index: number) => {
         console.log(`Duplicação ${index + 1}:`, dup);
       });
     } else {
@@ -53,7 +69,7 @@ const createProductionIndex = async () => {
 
     process.exit(0);
   } catch (error) {
-    console.error('Erro ao criar índice:', error);
+    console.error('Erro ao criar índice:', error instanceof Error ? error.message : error);
     process.exit(1);
   }
 };
