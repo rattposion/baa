@@ -78,7 +78,7 @@ const checkResetStatus = async (): Promise<void> => {
     
     console.log(`\n=== ESTOQUE CALCULADO BASEADO NOS REGISTROS ===`);
     for (const [equipmentId, stock] of Object.entries(equipmentStock)) {
-      const equipment = equipments.find(e => e._id.toString() === equipmentId);
+      const equipment = equipments.find(e => (e._id as Types.ObjectId).toString() === equipmentId);
       if (equipment) {
         console.log(`${equipment.modelName}:`);
         console.log(`  - CurrentStock Calculado: ${stock.currentStock}`);
