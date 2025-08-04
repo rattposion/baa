@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import mongoose, { Types } from 'mongoose';
 import Production from '../models/Production';
 import Equipment from '../models/Equipment';
@@ -14,6 +14,13 @@ interface ProductionRecord {
   equipmentModel: string;
   date: string;
   employeeName: string;
+}
+
+interface EquipmentRecord {
+  _id: Types.ObjectId;
+  modelName: string;
+  currentStock: number;
+  totalResets: number;
 }
 
 const checkResetStatus = async (): Promise<void> => {
@@ -51,9 +58,9 @@ const checkResetStatus = async (): Promise<void> => {
     }
     
     // Verificar estoque atual dos equipamentos
-    const equipments = await Equipment.find({});
+    const equipments = await Equipment.find({}).lean() as EquipmentRecord[];
     console.log(`\n=== ESTOQUE ATUAL DOS EQUIPAMENTOS ===`);
-    equipments.forEach(equipment => {
+    equipments.forEach((equipment: EquipmentRecord) => {
       console.log(`${equipment.modelName}:`);
       console.log(`  - CurrentStock: ${equipment.currentStock}`);
       console.log(`  - TotalResets: ${equipment.totalResets}`);
@@ -78,7 +85,7 @@ const checkResetStatus = async (): Promise<void> => {
     
     console.log(`\n=== ESTOQUE CALCULADO BASEADO NOS REGISTROS ===`);
     for (const [equipmentId, stock] of Object.entries(equipmentStock)) {
-      const equipment = equipments.find(e => (e._id as Types.ObjectId).toString() === equipmentId);
+      const equipment = equipments.find((e: EquipmentRecord) => e._id.toString() === equipmentId);
       if (equipment) {
         console.log(`${equipment.modelName}:`);
         console.log(`  - CurrentStock Calculado: ${stock.currentStock}`);
