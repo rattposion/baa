@@ -15,7 +15,9 @@
     "create-admin": "ts-node src/scripts/createAdmin.ts",
     "create-production-index": "ts-node src/scripts/createProductionIndex.ts",
     "fix-reset-stock": "ts-node src/scripts/fixResetStock.ts",
-    "check-reset-status": "ts-node src/scripts/checkResetStatus.ts"
+    "check-reset-status": "ts-node src/scripts/checkResetStatus.ts",
+    "test-production-api": "ts-node src/scripts/testProductionAPI.ts",
+    "check-reset-in-stock": "ts-node src/scripts/checkResetInStock.ts"
   },
   "engines": {
     "node": ">=18.0.0"

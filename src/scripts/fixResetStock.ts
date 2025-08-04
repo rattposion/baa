@@ -1,12 +1,12 @@
-import dotenv from 'dotenv';
-import mongoose, { Types } from 'mongoose';
+import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import Production from '../models/Production';
 import Equipment from '../models/Equipment';
 
 dotenv.config();
 
 interface ProductionRecord {
-  _id: Types.ObjectId;
+  _id: any;
   employeeId: string;
   equipmentId: string;
   quantity: number;
@@ -23,6 +23,14 @@ const fixResetStock = async (): Promise<void> => {
     // Buscar todos os registros de produção
     const productions = await Production.find({}).lean() as unknown as ProductionRecord[];
     console.log(`Encontrados ${productions.length} registros de produção`);
+
+    // Separar registros de reset e produção normal
+    const resetRecords = productions.filter(p => p.isReset);
+    const normalRecords = productions.filter(p => !p.isReset);
+
+    console.log(`\n=== ANÁLISE DOS REGISTROS ===`);
+    console.log(`Registros de Reset: ${resetRecords.length}`);
+    console.log(`Registros de Produção Normal: ${normalRecords.length}`);
 
     // Agrupar por equipamento para calcular o estoque correto
     const equipmentStock: { [key: string]: { currentStock: number; totalResets: number } } = {};
@@ -42,7 +50,7 @@ const fixResetStock = async (): Promise<void> => {
       }
     });
 
-    console.log('Estoque calculado por equipamento:');
+    console.log('\n=== ESTOQUE CALCULADO BASEADO NOS REGISTROS ===');
     console.log(equipmentStock);
 
     // Atualizar o estoque de cada equipamento
@@ -58,15 +66,33 @@ const fixResetStock = async (): Promise<void> => {
         
         await equipment.save();
         
-        console.log(`Equipamento ${equipment.modelName}:`);
+        console.log(`\nEquipamento ${equipment.modelName}:`);
         console.log(`  - CurrentStock: ${oldCurrentStock} → ${stock.currentStock}`);
         console.log(`  - TotalResets: ${oldTotalResets} → ${stock.totalResets}`);
+        
+        // Verificar se houve correção
+        if (oldCurrentStock !== stock.currentStock || oldTotalResets !== stock.totalResets) {
+          console.log(`  ✅ CORRIGIDO: Registros de reset não afetam mais o estoque`);
+        } else {
+          console.log(`  ✅ Já estava correto`);
+        }
         
         updatedCount++;
       }
     }
 
     console.log(`\n${updatedCount} equipamentos atualizados com sucesso`);
+
+    // Mostrar resumo dos registros de reset
+    if (resetRecords.length > 0) {
+      console.log(`\n=== REGISTROS DE RESET ENCONTRADOS ===`);
+      resetRecords.forEach((record, index) => {
+        console.log(`${index + 1}. ${record.equipmentModel} - Qtd: ${record.quantity}`);
+      });
+      console.log(`\n⚠️  ATENÇÃO: ${resetRecords.length} registros de reset foram encontrados`);
+      console.log(`   Estes registros NÃO devem afetar o currentStock, apenas o totalResets`);
+    }
+
     process.exit(0);
   } catch (error) {
     console.error('Erro ao corrigir estoque:', error instanceof Error ? error.message : error);
