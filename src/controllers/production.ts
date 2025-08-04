@@ -162,20 +162,31 @@ export const createProduction = asyncHandler(async (req: Request, res: Response)
 
   // Só movimenta estoque se NÃO for reset
   if (!isResetBool) {
-    // Atualiza o estoque do equipamento
-    equipment.currentStock = (equipment.currentStock || 0) + quantity;
-    await equipment.save();
+    try {
+      // Atualiza o estoque do equipamento
+      equipment.currentStock = (equipment.currentStock || 0) + quantity;
+      await equipment.save();
 
-    // Cria o registro de movimentação
-    await Movement.create({
-      equipmentId,
-      equipmentName: equipment.get('modelName'),
-      quantity,
-      type: 'entrada',
-      description: `Entrada por produção - ${equipment.get('modelName')}`,
-      date: date,
-      timestamp: new Date(),
-    });
+      // Cria o registro de movimentação
+      await Movement.create({
+        equipmentId,
+        equipmentName: equipment.get('modelName'),
+        quantity,
+        type: 'entrada',
+        description: `Entrada por produção - ${equipment.get('modelName')}`,
+        date: date,
+        timestamp: new Date(),
+      });
+    } catch (error: any) {
+      console.error('Erro ao criar movimentação:', error);
+      
+      // Se falhar ao criar movimentação, reverter o estoque
+      equipment.currentStock = (equipment.currentStock || 0) - quantity;
+      await equipment.save();
+      
+      res.status(500);
+      throw new Error('Erro ao criar registro de movimentação');
+    }
   }
 
   res.status(201).json(production);

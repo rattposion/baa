@@ -15,8 +15,13 @@ export const errorHandler = (
   let error = { ...err };
   error.message = err.message;
 
-  // Log do erro para o desenvolvedor
-  console.error(err);
+  // Log detalhado do erro para o desenvolvedor
+  console.error('=== ERRO DETALHADO ===');
+  console.error('Mensagem:', err.message);
+  console.error('Nome:', err.name);
+  console.error('Código:', err.code);
+  console.error('Stack:', err.stack);
+  console.error('========================');
 
   // Mongoose erro de ID inválido
   if (err.name === 'CastError') {

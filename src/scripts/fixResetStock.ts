@@ -21,7 +21,7 @@ const fixResetStock = async (): Promise<void> => {
     console.log('Conectado ao MongoDB');
 
     // Buscar todos os registros de produção
-    const productions = await Production.find({}).lean() as ProductionRecord[];
+    const productions = await Production.find({}).lean() as unknown as ProductionRecord[];
     console.log(`Encontrados ${productions.length} registros de produção`);
 
     // Agrupar por equipamento para calcular o estoque correto
