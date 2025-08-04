@@ -212,6 +212,27 @@ export const updateProduction = asyncHandler(async (req: Request, res: Response)
   }
 
   if (req.body.quantity) {
+    // Verificar se é um reset para ajustar o estoque corretamente
+    const isReset = production.get('isReset');
+    const oldQuantity = production.get('quantity');
+    const newQuantity = req.body.quantity;
+    
+    // Buscar o equipamento para atualizar o estoque
+    const equipment = await Equipment.findById(production.get('equipmentId'));
+    if (equipment) {
+      if (isReset) {
+        // Se for reset, ajusta apenas o totalResets
+        const quantityDifference = newQuantity - oldQuantity;
+        equipment.totalResets = (equipment.totalResets || 0) + quantityDifference;
+        await equipment.save();
+      } else {
+        // Se não for reset, ajusta o currentStock
+        const quantityDifference = newQuantity - oldQuantity;
+        equipment.currentStock = (equipment.currentStock || 0) + quantityDifference;
+        await equipment.save();
+      }
+    }
+    
     production.set('quantity', req.body.quantity);
   }
 
@@ -232,6 +253,23 @@ export const deleteProduction = asyncHandler(async (req: Request, res: Response)
   if (!production) {
     res.status(404);
     throw new Error('Registro de produção não encontrado');
+  }
+
+  // Ajustar o estoque antes de deletar
+  const equipment = await Equipment.findById(production.get('equipmentId'));
+  if (equipment) {
+    const isReset = production.get('isReset');
+    const quantity = production.get('quantity');
+    
+    if (isReset) {
+      // Se for reset, diminui o totalResets
+      equipment.totalResets = Math.max(0, (equipment.totalResets || 0) - quantity);
+      await equipment.save();
+    } else {
+      // Se não for reset, diminui o currentStock
+      equipment.currentStock = Math.max(0, (equipment.currentStock || 0) - quantity);
+      await equipment.save();
+    }
   }
 
   await production.deleteOne();

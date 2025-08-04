@@ -13,7 +13,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "husky install",
     "create-admin": "ts-node src/scripts/createAdmin.ts",
-    "create-production-index": "ts-node src/scripts/createProductionIndex.ts"
+    "create-production-index": "ts-node src/scripts/createProductionIndex.ts",
+    "fix-reset-stock": "ts-node src/scripts/fixResetStock.ts",
+    "check-reset-status": "ts-node src/scripts/checkResetStatus.ts"
   },
   "engines": {
     "node": ">=18.0.0"
