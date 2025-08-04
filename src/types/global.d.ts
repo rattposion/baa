@@ -1,5 +1,12 @@
-declare module 'dotenv';
-declare module 'mongoose';
+declare module 'dotenv' {
+  const config: (options?: any) => void;
+  export { config };
+  export default { config };
+}
+
+declare module 'mongoose' {
+  export * from 'mongoose';
+}
 
 declare global {
   namespace NodeJS {

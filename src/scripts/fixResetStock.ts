@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import Production from '../models/Production';
 import Equipment from '../models/Equipment';
 
 dotenv.config();
 
 interface ProductionRecord {
-  _id: string;
+  _id: Types.ObjectId;
   employeeId: string;
   equipmentId: string;
   quantity: number;
