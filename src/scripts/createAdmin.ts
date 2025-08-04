@@ -23,7 +23,7 @@ const createAdmin = async () => {
     const password = await bcrypt.hash('admin123', salt);
 
     // Criar usuário admin
-    await User.create({
+    const admin = await User.create({
       name: 'Administrador',
       email: 'admin@mix.com',
       password,
@@ -31,8 +31,7 @@ const createAdmin = async () => {
       active: true,
     });
 
-
-
+    console.log('Usuário administrador criado com sucesso:', admin.email);
     process.exit(0);
   } catch (error) {
     console.error('Erro ao criar usuário administrador:', error);

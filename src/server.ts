@@ -78,7 +78,7 @@ app.use(errorHandler);
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mix');
-  
+    console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
     process.exit(1);
@@ -90,6 +90,6 @@ const PORT = process.env.PORT || 3001;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
-  
+    console.log(`Server running on port ${PORT}`);
   });
 }); 
